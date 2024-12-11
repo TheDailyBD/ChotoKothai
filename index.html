@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTICLES BD - Home</title>
+    <title>The Daily Bangladesh</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         body {
@@ -12,133 +12,126 @@
             padding: 0;
             background-color: #f9f9f9;
             line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
         }
-
         .header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background: #FFFFFF;
-            color: black;
+            background: #000000;
+            color: white;
             padding: 10px 0;
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 10px 20px;
         }
-
         .header img {
-            width: 0.3in;
-            height: 0.3in;
+            width: 0.5in;
+            height: 0.5in;
             margin-right: 10px;
         }
-
         .header .logo-text {
             font-size: 24px;
             font-weight: bold;
         }
-
-        .nav {
-            display: flex;
-            margin-left: auto;
+        .container {
+            max-width: 800px;
+            margin: 80px auto 20px;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-
-        .nav a {
-            color: black;
-            text-decoration: none;
-            padding: 14px 20px;
-            font-size: 16px;
-            border-left: 1px solid #ddd;
+        .news-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
         }
-
-        .nav a:first-child {
-            border-left: none;
+        .news-item:last-child {
+            border-bottom: none;
         }
-
-        .nav a:hover {
-            background-color: #f1f1f1;
+        .label {
+            font-weight: bold;
+            color: #ff5722;
+            font-size: 14px;
         }
-
-        .main-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 1200px;
-            margin: 80px 0 0;
+        .news-text {
+            margin-top: 5px;
+            color: #333;
+            font-size: 14px;
         }
-
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex: 1;
-        }
-
-        .logo-container img {
-            width: 150px; /* Set the logo size */
-            height: auto;
-        }
-
-        .text-container {
-            display: flex;
-            flex: 1;
-            justify-content: flex-end;
-            align-items: center;
-            padding-right: 70px;
-            flex-direction: column;
-        }
-
-        .text-container p {
-            font-size: 25px;  /* Adjust font size for better fitting */
-            font-weight: regular;
-            color: #225;
-            margin-right: 0;
-            margin-top: 10px;
-        }
-
-        .sub-text {
-            font-size: 16px;
-            color: #555;
-            margin-top: 0px;
-            font-weight: normal;
-            width: 60%; /* Limit width for text readability */
-            margin-left: auto;
-            margin-right: auto;
-        }
-
     </style>
 </head>
 <body>
-
     <div class="header">
         <img src="logo.png" alt="Logo">
-        <div class="logo-text">ARTICLES BD</div>
-        <div class="nav">
-            <a href="news.html">News</a>
-            <a href="about.html">About Us</a>
-        </div>
+        <div class="logo-text">Bangladesh Daily Updates</div>
+    </div>
+    <div class="container">
+        <div id="news-feed"></div>
     </div>
 
-    <div class="main-content">
-        <div class="logo-container">
-            <img src="logo.png" alt="Logo">
-        </div>
-        <div class="text-container">
-            <p>STAY UPDATED IN 10 WORDS</p>
-            <div class="sub-text">
-                Stay ahead of the curve with Articles BD – your go-to source for the latest news in 100 words.Get quick, relevant updates on current events, business trends, and more, all delivered straight to you. Don’t miss out on the information that matters. Stay updated, stay informed, and be part of the conversation with Articles BD.
-            </div>
-        </div>
-    </div>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const loadNews = () => {
+            const newsRef = ref(db, 'news');
+            const newsFeed = document.getElementById('news-feed');
+            newsFeed.innerHTML = '';
+
+            onValue(newsRef, (snapshot) => {
+                const news = snapshot.val();
+                newsFeed.innerHTML = ''; // Clear feed
+                const today = new Date();
+
+                for (const key in news) {
+                    const item = news[key];
+                    const newsDate = new Date(item.date);
+                    const differenceInDays = Math.floor((today - newsDate) / (1000 * 60 * 60 * 24));
+
+                    let label;
+                    if (differenceInDays === 0) {
+                        label = 'Today';
+                    } else if (differenceInDays === 1) {
+                        label = 'Yesterday';
+                    } else {
+                        const day = newsDate.getDate().toString().padStart(2, '0');
+                        const month = (newsDate.getMonth() + 1).toString().padStart(2, '0');
+                        const year = newsDate.getFullYear();
+                        label = `${day}-${month}-${year}`;
+                    }
+
+                    const newsDiv = document.createElement('div');
+                    newsDiv.className = 'news-item';
+                    newsDiv.innerHTML = `
+                        <div class="news-content">
+                            <span class="label">${label}</span>
+                            <p>${item.text}</p>
+                        </div>
+                    `;
+
+                    newsFeed.insertBefore(newsDiv, newsFeed.firstChild);
+                }
+            });
+        };
+
+        window.onload = loadNews;
+    </script>
 </body>
 </html>
