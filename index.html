@@ -12,10 +12,6 @@
             padding: 0;
             background-color: #f9f9f9;
             line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             text-align: center;
         }
 
@@ -36,8 +32,8 @@
         }
 
         .header img {
-            width: 0.3in;
-            height: 0.3in;
+            width: 40px;
+            height: 40px;
             margin-right: 10px;
         }
 
@@ -69,52 +65,89 @@
 
         .main-content {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
             max-width: 1200px;
-            margin: 80px 0 0;
+            margin: 100px auto 0;
+            padding: 20px;
         }
 
         .logo-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex: 1;
+            margin-bottom: 0px;
         }
 
         .logo-container img {
-            width: 150px; /* Set the logo size */
+            width: 150px;
             height: auto;
         }
 
         .text-container {
             display: flex;
-            flex: 1;
-            justify-content: flex-end;
-            align-items: center;
-            padding-right: 70px;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
         }
 
         .text-container p {
-            font-size: 25px;  /* Adjust font size for better fitting */
-            font-weight: regular;
+            font-size: 28px; 
+            font-weight: bold;
             color: #225;
-            margin-right: 0;
-            margin-top: 10px;
+            margin-bottom: 15px;
         }
 
         .sub-text {
-            font-size: 16px;
+            font-size: 18px;
             color: #555;
-            margin-top: 0px;
             font-weight: normal;
-            width: 60%; /* Limit width for text readability */
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: justify;
         }
 
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .header {
+                flex-wrap: wrap;
+                text-align: center;
+                padding: 10px;
+            }
+
+            .header img {
+                margin-bottom: 10px;
+            }
+
+            .nav {
+                margin: 0 auto;
+            }
+
+            .text-container p {
+                font-size: 22px; 
+            }
+
+            .sub-text {
+                font-size: 16px;
+                text-align: center; /* Center-align text for smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+            }
+
+            .nav a {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .logo-container img {
+                width: 120px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -133,9 +166,9 @@
             <img src="logo.png" alt="Logo">
         </div>
         <div class="text-container">
-            <p>STAY UPDATED IN 100 WORDS</p>
+            <p>STAY UPDATED IN 10 WORDS</p>
             <div class="sub-text">
-                Stay ahead of the curve with Articles BD – your go-to source for the latest news in 100 words.Get quick, relevant updates on current events, business trends, and more, all delivered straight to you. Don’t miss out on the information that matters. Stay updated, stay informed, and be part of the conversation with Articles BD.
+                "Stay ahead of the curve with Articles BD – your go-to source for the latest news in 100 words. Get quick, relevant updates on current events, business trends, and more, all delivered straight to you. Don’t miss out on the information that matters. Stay updated, stay informed, and be part of the conversation with Articles BD."
             </div>
         </div>
     </div>
