@@ -6,61 +6,78 @@
     <title>Chotokothai - Home</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
-        body {
+       body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f9f9f9;
             line-height: 1.6;
-            text-align: center;
         }
 
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: #FFFFFF;
-            color: black;
-            padding: 10px 0;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            z-index: 1000;
+ .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    color: black;
+    padding: 10px 20px;
+    display: fixed;
+    justify-content: flex;  /* Align items to the left */
+    align-items: fixed;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ensure it spans the full width */
+}
+
+.header img {
+    width: 150px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.header .logo-text {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav {
+    display: flex;
+    margin-left: auto; /* Align nav links to the right */
+}
+
+.nav a {
+    color: black;
+    text-decoration: none;
+    padding: 14px 20px;
+    font-size: 16px;
+    border-left: 1px solid #ddd;
+}
+
+.nav a:first-child {
+    border-left: none;
+}
+
+.nav a:hover {
+    background-color: #f1f1f1;
+}
+
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto 20px;
+            background: #fff;
+            padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .header img {
-            width: 150px;
-            height: 40px;
-            margin-right: 10px;
-        }
-
-        .header .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .nav {
-            display: flex;
-            margin-left: auto;
-        }
-
-        .nav a {
-            color: black;
-            text-decoration: none;
-            padding: 14px 20px;
+        .about-us {
             font-size: 16px;
-            border-left: 1px solid #ddd;
-        }
+            color: #333;
+            padding: 20px;
+        
+}
 
-        .nav a:first-child {
-            border-left: none;
-        }
-
-        .nav a:hover {
-            background-color: #f1f1f1;
-        }
 
         .main-content {
             display: flex;
@@ -78,7 +95,7 @@
         }
 
         .logo-container img {
-            width: 300px;
+            width: 500px;
             height: auto;
         }
 
@@ -110,7 +127,6 @@
         /* Responsive styles */
         @media (max-width: 768px) {
             .header {
-                flex-wrap: wrap;
                 text-align: center;
                 padding: 10px;
             }
@@ -152,7 +168,7 @@
 <body>
 
     <div class="header">
-        <div class="logo-text"></div>
+        <div class="logo-text">                           </div>
         <div class="nav">
             <a href="news.html">News</a>
             <a href="about.html">About Us</a>
