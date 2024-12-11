@@ -88,7 +88,7 @@
         .news-content p {
             margin-top: 5px;
             color: #333;
-            font-family: "Times New Roman", san serif;
+            font-family: "Times New Roman", sans-serif;
             font-weight: semi bold;
             font-size: 14px;
         }
@@ -113,14 +113,14 @@
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
-            authDomain: "thedailybd-acdaf.firebaseapp.com",
-            databaseURL: "https://thedailybd-acdaf-default-rtdb.firebaseio.com",
-            projectId: "thedailybd-acdaf",
-            storageBucket: "thedailybd-acdaf.appspot.com",
-            messagingSenderId: "582082023966",
-            appId: "1:582082023966:web:cdee6a8c28e4513761140f",
-            measurementId: "G-EML9VNGL8Z"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -147,7 +147,10 @@
                     } else if (differenceInDays === 1) {
                         label = 'Yesterday';
                     } else {
-                        continue;
+                        const day = newsDate.getDate().toString().padStart(2, '0');
+                        const month = (newsDate.getMonth() + 1).toString().padStart(2, '0');
+                        const year = newsDate.getFullYear();
+                        label = `${day}-${month}-${year}`;
                     }
 
                     const newsDiv = document.createElement('div');
