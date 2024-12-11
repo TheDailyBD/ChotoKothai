@@ -21,17 +21,15 @@
             width: 100%;
             background: #FFFFFF;
             color: black;
-            padding: 10px 0;
+            padding: 10px 20px;
             display: flex;
-            justify-content: flex-start;
             align-items: center;
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 10px 20px;
         }
 
         .header img {
-            width: 80px;
+            width: 150px;
             height: 40px;
             margin-right: 10px;
         }
@@ -71,33 +69,55 @@
         }
 
         .news-item {
+            display: flex;
             border-bottom: 1px solid #ddd;
-            padding: 10px 0;
+            padding: 15px 0;
+            gap: 20px;
+            align-items: flex-start; /* Align items vertically */
         }
 
         .news-item:last-child {
             border-bottom: none;
         }
 
-        .label {
-            font-weight: bold;
-            color: #ff5722;
-            font-size: 14px;
+        .image-box {
+            flex-shrink: 0;
+            width: 150px; /* Adjust width to make it more visually balanced */
+            height: 150px;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
         }
 
-        .news-content p {
-            margin-top: 5px;
+        .news-content {
+            flex-grow: 1;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #ff0000;
+            font-size: 12px;
+        }
+
+        .headline {
+            font-weight: bold;
             color: #333;
-            font-family: "Times New Roman", san serif;
-            font-weight: semi bold;
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
+        .subtext {
+            font-family: "Times New Roman", serif;
             font-size: 14px;
+            color: #555;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <img src="logo.png" alt="Logo">
-        <div class="logo-text">CHOTOKOTHAI</div>
+        <div class="logo-text"></div>
         <div class="nav">
             <a href="index.html">Home</a>
             <a href="about.html">About Us</a>
@@ -112,6 +132,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
             authDomain: "thedailybd-acdaf.firebaseapp.com",
@@ -123,9 +144,11 @@
             measurementId: "G-EML9VNGL8Z"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Load News Data
         const loadNews = () => {
             const newsRef = ref(db, 'news');
             const newsFeed = document.getElementById('news-feed');
@@ -136,6 +159,7 @@
                 newsFeed.innerHTML = '';
                 const today = new Date();
 
+                // Iterate through the news items
                 for (const key in news) {
                     const item = news[key];
                     const newsDate = new Date(item.date);
@@ -152,10 +176,16 @@
 
                     const newsDiv = document.createElement('div');
                     newsDiv.className = 'news-item';
+
+                    // Dynamically assign image URL or fallback
+                    const imageURL = item.imageUrl || 'placeholder.png';
+
                     newsDiv.innerHTML = `
+                        <div class="image-box" style="background-image: url('${imageURL}');"></div>
                         <div class="news-content">
                             <span class="label">${label}</span>
-                            <p>${item.text}</p>
+                            <div class="headline">${item.headline}</div>
+                            <div class="subtext">${item.subtext || 'No additional information available.'}</div>
                         </div>
                     `;
                     newsFeed.insertBefore(newsDiv, newsFeed.firstChild);
