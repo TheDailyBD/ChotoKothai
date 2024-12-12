@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chotokothai - News</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f9f9f9;
             line-height: 1.6;
+            background-image: url('background.jpg'); /* Background image file */
+            background-size: cover; /* Adjusts the image to cover the entire screen */
+            background-attachment: fixed; /* Keeps the background fixed during scroll */
+            background-position: center; /* Centers the image */
         }
 
         .header {
@@ -29,96 +35,117 @@
         }
 
         .header img {
-            width: 150px;
-            height: 40px;
+            width: 120px;
+            height: 30px;
             margin-right: 10px;
         }
 
-        .header .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
         .nav {
-            display: flex;
             margin-left: auto;
+            display: flex;
         }
 
         .nav a {
             color: black;
             text-decoration: none;
-            padding: 14px 20px;
-            font-size: 16px;
-            border-left: 1px solid #ddd;
-        }
-
-        .nav a:first-child {
-            border-left: none;
+            padding: 8px 10px;
+            font-size: 14px;
         }
 
         .nav a:hover {
             background-color: #f1f1f1;
         }
 
+        /* News Container */
         .container {
-            max-width: 800px;
-            margin: 80px auto 20px;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .news-item {
+            max-width: 100%;
+            margin: 60px auto 20px;
+            padding: 10px;
             display: flex;
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
-            gap: 20px;
-            align-items: flex-start; /* Align items vertically */
+            flex-direction: column;
+            align-items: center;
         }
 
-        .news-item:last-child {
-            border-bottom: none;
+        /* News Card Style */
+        .news-item {
+            background: #fff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .image-box {
-            flex-shrink: 0;
-            width: 200px; /* Adjust width to make it more visually balanced */
-            height: 170px;
+            width: 100%;
+            height: 200px;
             background-color: #ddd;
             background-size: cover;
             background-position: center;
         }
 
         .news-content {
-            flex-grow: 1;
+            padding: 10px 15px;
         }
 
         .label {
             font-weight: bold;
             color: #ff0000;
             font-size: 12px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         .headline {
-            font-weight: black;
+            font-family: "Times New Roman", serif;
+            font-weight: bold;
+            font-size: 18px;
             color: #333;
-            font-size: 20px;
-            margin: 5px 0;
+            margin-bottom: 5px;
         }
 
         .subtext {
             font-family: "Times New Roman", serif;
-font-weight: semi bold;
-            font-size: 16px;
+            font-weight: bold;
+            font-size: 14px;
             color: #555;
-            margin-top: 5px;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 600px) {
+            .container {
+                padding: 5px;
+            }
+
+            .news-item {
+                max-width: 90%;
+            }
+
+            .headline {
+                font-size: 16px;
+            }
+
+            .subtext {
+                font-size: 13px;
+            }
+
+            .label {
+                font-size: 10px;
+            }
+
+            .image-box {
+                height: 150px;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <img src="logo.png" alt="Logo">
-        <div class="logo-text"></div>
         <div class="nav">
             <a href="index.html">Home</a>
             <a href="about.html">About Us</a>
@@ -157,28 +184,22 @@ font-weight: semi bold;
 
             onValue(newsRef, (snapshot) => {
                 const news = snapshot.val();
-                newsFeed.innerHTML = '';
                 const today = new Date();
+                const newsElements = [];
 
-                // Iterate through the news items
                 for (const key in news) {
                     const item = news[key];
                     const newsDate = new Date(item.date);
                     const differenceInDays = Math.floor((today - newsDate) / (1000 * 60 * 60 * 24));
 
                     let label;
-                    if (differenceInDays === 0) {
-                        label = 'Today';
-                    } else if (differenceInDays === 1) {
-                        label = 'Yesterday';
-                    } else {
-                        continue;
-                    }
+                    if (differenceInDays === 0) label = 'Today';
+                    else if (differenceInDays === 1) label = 'Yesterday';
+                    else continue;
 
                     const newsDiv = document.createElement('div');
                     newsDiv.className = 'news-item';
 
-                    // Dynamically assign image URL or fallback
                     const imageURL = item.imageUrl || 'placeholder.png';
 
                     newsDiv.innerHTML = `
@@ -189,12 +210,15 @@ font-weight: semi bold;
                             <div class="subtext">${item.subtext || 'No additional information available.'}</div>
                         </div>
                     `;
-                    newsFeed.insertBefore(newsDiv, newsFeed.firstChild);
+                    newsElements.unshift(newsDiv); // Add the news to the start of the array
                 }
+
+                newsElements.forEach(element => newsFeed.appendChild(element)); // Append in correct order
             });
         };
 
         window.onload = loadNews;
     </script>
 </body>
+
 </html>
