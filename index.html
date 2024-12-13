@@ -6,7 +6,7 @@
     <title>Chotokothai - Home</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
-       body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -14,54 +14,52 @@
             line-height: 1.6;
         }
 
- .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: #FFFFFF;
-    color: black;
-    padding: 10px 20px;
-    display: fixed;
-    justify-content: flex;  /* Align items to the left */
-    align-items: fixed;
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 100%; /* Ensure it spans the full width */
-}
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #FFFFFF;
+            color: black;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
 
-.header img {
-    width: 150px;
-    height: 40px;
-    margin-right: 10px;
-}
+        .header img {
+            width: 150px;
+            height: 40px;
+            margin-right: 10px;
+        }
 
-.header .logo-text {
-    font-size: 24px;
-    font-weight: bold;
-}
+        .header .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
 
-.nav {
-    display: flex;
-    margin-left: auto; /* Align nav links to the right */
-}
+        .nav {
+            display: flex;
+            margin-left: auto;
+        }
 
-.nav a {
-    color: black;
-    text-decoration: none;
-    padding: 14px 20px;
-    font-size: 16px;
-    border-left: 1px solid #ddd;
-}
+        .nav a {
+            color: black;
+            text-decoration: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-left: 1px solid #ddd;
+        }
 
-.nav a:first-child {
-    border-left: none;
-}
+        .nav a:first-child {
+            border-left: none;
+        }
 
-.nav a:hover {
-    background-color: #f1f1f1;
-}
-
+        .nav a:hover {
+            background-color: #f1f1f1;
+        }
 
         .container {
             max-width: 800px;
@@ -70,14 +68,6 @@
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-
-        .about-us {
-            font-size: 16px;
-            color: #333;
-            padding: 20px;
-        
-}
-
 
         .main-content {
             display: flex;
@@ -139,6 +129,10 @@
                 margin: 0 auto;
             }
 
+            .nav a {
+                display: none; /* Hide Home link for mobile */
+            }
+
             .text-container p {
                 font-size: 22px; 
             }
@@ -164,11 +158,23 @@
             }
         }
     </style>
+    <script>
+        // Redirect mobile users to the news page
+        function redirectForMobile() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            if (isMobile) {
+                window.location.href = "news.html"; // Redirect to news.html
+            }
+        }
+
+        // Call the redirection function on page load
+        window.onload = redirectForMobile;
+    </script>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo-text">                           </div>
+        <div class="logo-text"></div>
         <div class="nav">
             <a href="news.html">News</a>
             <a href="about.html">About Us</a>

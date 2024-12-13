@@ -21,9 +21,7 @@
             width: 100%;
             background: #FFFFFF;
             color: black;
-            padding: 10px 0;
             display: flex;
-            justify-content: flex-start;
             align-items: center;
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -36,14 +34,9 @@
             margin-right: 10px;
         }
 
-        .header .logo-text {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
         .nav {
-            display: flex;
             margin-left: auto;
+            display: flex;
         }
 
         .nav a {
@@ -62,9 +55,16 @@
             background-color: #f1f1f1;
         }
 
+        /* Hide Home Button on Smaller Screens */
+        @media (max-width: 768px) {
+            .nav a.home-link {
+                display: none;
+            }
+        }
+
         .container {
             max-width: 800px;
-            margin: 50px auto 20px;
+            margin: 60px auto 20px;
             background: #fff;
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -80,9 +80,8 @@
 <body>
     <div class="header">
         <img src="logo.png" alt="Logo">
-        <div class="logo-text"></div>
         <div class="nav">
-            <a href="index.html">Home</a>
+            <a href="index.html" class="home-link">Home</a>
             <a href="news.html">News</a>
         </div>
     </div>
@@ -97,4 +96,3 @@
     </div>
 </body>
 </html>
-

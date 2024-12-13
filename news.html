@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +13,10 @@
             padding: 0;
             background-color: #f9f9f9;
             line-height: 1.6;
-            background-image: url('background.jpg'); /* Background image file */
-            background-size: cover; /* Adjusts the image to cover the entire screen */
-            background-attachment: fixed; /* Keeps the background fixed during scroll */
-            background-position: center; /* Centers the image */
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
         }
 
         .header {
@@ -27,33 +26,47 @@
             width: 100%;
             background: #FFFFFF;
             color: black;
-            padding: 10px 20px;
+            padding: 10px 0;
             display: flex;
+            justify-content: flex-start;
             align-items: center;
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
         }
 
         .header img {
-            width: 120px;
-            height: 30px;
+            width: 150px;
+            height: 40px;
             margin-right: 10px;
         }
 
         .nav {
-            margin-left: auto;
             display: flex;
+            margin-left: auto;
         }
 
         .nav a {
             color: black;
             text-decoration: none;
-            padding: 8px 10px;
-            font-size: 14px;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-left: 1px solid #ddd;
+        }
+
+        .nav a:first-child {
+            border-left: none;
         }
 
         .nav a:hover {
             background-color: #f1f1f1;
+        }
+
+        /* Hide Home Button on Smaller Screens */
+        @media (max-width: 768px) {
+            .nav a.home-link {
+                display: none;
+            }
         }
 
         /* News Container */
@@ -70,7 +83,7 @@
         .news-item {
             background: #fff;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -81,63 +94,63 @@
 
         .image-box {
             width: 100%;
-            height: 200px;
+            height: 300px;
             background-color: #ddd;
             background-size: cover;
             background-position: center;
         }
 
         .news-content {
-            padding: 10px 15px;
+            padding: 15px;
         }
 
         .label {
             font-weight: bold;
             color: #ff0000;
-            font-size: 12px;
-            margin-bottom: 5px;
+            font-size: 14px;
+            margin-bottom: 8px;
             text-transform: uppercase;
         }
 
         .headline {
             font-family: "Times New Roman", serif;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .subtext {
             font-family: "Times New Roman", serif;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
             color: #555;
         }
 
         /* Mobile Responsive Styles */
         @media (max-width: 600px) {
             .container {
-                padding: 5px;
+                padding: 10px;
             }
 
             .news-item {
-                max-width: 90%;
+                max-width: 100%;
             }
 
             .headline {
-                font-size: 16px;
+                font-size: 18px;
             }
 
             .subtext {
-                font-size: 13px;
+                font-size: 15px;
             }
 
             .label {
-                font-size: 10px;
+                font-size: 12px;
             }
 
             .image-box {
-                height: 150px;
+                height: 250px;
             }
         }
     </style>
@@ -147,7 +160,7 @@
     <div class="header">
         <img src="logo.png" alt="Logo">
         <div class="nav">
-            <a href="index.html">Home</a>
+            <a href="index.html" class="home-link">Home</a>
             <a href="about.html">About Us</a>
         </div>
     </div>
@@ -210,15 +223,14 @@
                             <div class="subtext">${item.subtext || 'No additional information available.'}</div>
                         </div>
                     `;
-                    newsElements.unshift(newsDiv); // Add the news to the start of the array
+                    newsElements.unshift(newsDiv);
                 }
 
-                newsElements.forEach(element => newsFeed.appendChild(element)); // Append in correct order
+                newsElements.forEach(element => newsFeed.appendChild(element));
             });
         };
 
         window.onload = loadNews;
     </script>
 </body>
-
 </html>
