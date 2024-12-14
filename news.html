@@ -83,7 +83,7 @@
         .news-item {
             background: #fff;
             width: 100%;
-            max-width: 500px;
+            max-width: 510px;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -197,18 +197,16 @@
 
             onValue(newsRef, (snapshot) => {
                 const news = snapshot.val();
-                const today = new Date();
                 const newsElements = [];
 
                 for (const key in news) {
                     const item = news[key];
                     const newsDate = new Date(item.date);
-                    const differenceInDays = Math.floor((today - newsDate) / (1000 * 60 * 60 * 24));
-
-                    let label;
-                    if (differenceInDays === 0) label = 'Today';
-                    else if (differenceInDays === 1) label = 'Yesterday';
-                    else continue;
+                    const formattedDate = newsDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                    });
 
                     const newsDiv = document.createElement('div');
                     newsDiv.className = 'news-item';
@@ -218,7 +216,7 @@
                     newsDiv.innerHTML = `
                         <div class="image-box" style="background-image: url('${imageURL}');"></div>
                         <div class="news-content">
-                            <span class="label">${label}</span>
+                            <span class="label">${formattedDate}</span>
                             <div class="headline">${item.headline}</div>
                             <div class="subtext">${item.subtext || 'No additional information available.'}</div>
                         </div>
