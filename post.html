@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post - Manage News</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        textarea, input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .news-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .news-item {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .news-item img {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+        .delete-btn {
+            padding: 5px 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background: #b21f2d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin - Manage News</h1>
+        <form id="news-form">
+            <textarea id="headline" placeholder="Enter news headline..." maxlength="200" required></textarea>
+            <textarea id="subtext" placeholder="Enter subtext (optional)..." maxlength="300"></textarea>
+            <input type="text" id="image-url" placeholder="Enter image URL (optional)" maxlength="500">
+            <button type="submit">Post Update</button>
+        </form>
+
+        <div class="news-list" id="news-list">
+            <h2>Uploaded News</h2>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";  // Add authentication
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
+            authDomain: "thedailybd-acdaf.firebaseapp.com",
+            databaseURL: "https://thedailybd-acdaf-default-rtdb.firebaseio.com",
+            projectId: "thedailybd-acdaf",
+            storageBucket: "thedailybd-acdaf.appspot.com",
+            messagingSenderId: "582082023966",
+            appId: "1:582082023966:web:cdee6a8c28e4513761140f",
+            measurementId: "G-EML9VNGL8Z"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        const newsRef = ref(db, 'news');
+
+        let currentUserId = null;
+
+        // Listen to auth state changes (logged in or logged out)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is logged in
+                currentUserId = user.uid;
+                loadNews();  // Load news once user is authenticated
+            } else {
+                // User is logged out
+                alert("You need to be logged in to manage posts!");
+                window.location.href = "login.html";  // Redirect to login if not authenticated
+            }
+        });
+
+        // Upload news
+        document.getElementById('news-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!currentUserId) return;  // Ensure user is logged in
+
+            const headline = document.getElementById('headline').value;
+            const subtext = document.getElementById('subtext').value;
+            const imageUrl = document.getElementById('image-url').value;
+
+            push(newsRef, { headline, subtext, imageUrl, userId: currentUserId, date: new Date().toISOString() })
+                .then(() => {
+                    alert('News uploaded successfully!');
+                    document.getElementById('headline').value = '';
+                    document.getElementById('subtext').value = '';
+                    document.getElementById('image-url').value = '';
+                })
+                .catch((error) => {
+                    alert('Failed to upload news: ' + error.message);
+                });
+        });
+
+        // Load news for the logged-in user only
+        const loadNews = () => {
+            const newsList = document.getElementById('news-list');
+            if (!currentUserId) return;  // Ensure user is logged in
+
+            onValue(newsRef, (snapshot) => {
+                newsList.innerHTML = '<h2>Uploaded News</h2>'; // Reset the list
+                const news = snapshot.val();
+                if (!news) return;
+
+                for (const key in news) {
+                    const item = news[key];
+                    if (item.userId === currentUserId) {  // Only display posts by the logged-in user
+                        const newsItemDiv = document.createElement('div');
+                        newsItemDiv.className = 'news-item';
+                        newsItemDiv.innerHTML = `
+                            <div>
+                                <h3>${item.headline}</h3>
+                                <p>${item.subtext || ''}</p>
+                                ${item.imageUrl ? `<img src="${item.imageUrl}" alt="News Image">` : ''}
+                            </div>
+                            <button class="delete-btn" data-key="${key}">Delete</button>
+                        `;
+                        newsList.appendChild(newsItemDiv);
+                    }
+                }
+
+                // Delete handler
+                const deleteButtons = document.querySelectorAll('.delete-btn');
+                deleteButtons.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const key = btn.getAttribute('data-key');
+                        const newsToDelete = ref(db, `news/${key}`);
+                        remove(newsToDelete)
+                            .then(() => alert('News deleted successfully!'))
+                            .catch((error) => alert('Failed to delete news: ' + error));
+                    });
+                });
+            });
+        };
+    </script>
+</body>
+</html>

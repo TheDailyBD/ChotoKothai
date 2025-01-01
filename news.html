@@ -7,12 +7,22 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         /* General Styles */
+        @font-face {
+            font-family: 'Nexa Heavy';
+            src: url('Nexa-Heavy.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Nexa Light';
+            src: url('Nexa-Light.ttf') format('truetype');
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f9f9f9;
-            line-height: 1.6;
+            line-height: 1.2;
             background-image: url('background.jpg');
             background-size: cover;
             background-attachment: fixed;
@@ -86,7 +96,7 @@
             max-width: 510px;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 8px rgba(0, 0, 0, 0.1);
             margin: 10px 0;
             display: flex;
             flex-direction: column;
@@ -105,26 +115,33 @@
         }
 
         .label {
+            font-family: 'Nexa Heavy';
             font-weight: bold;
-            color: #ff0000;
+            color: #000000;
             font-size: 14px;
             margin-bottom: 8px;
             text-transform: uppercase;
         }
 
         .headline {
-            font-family: "Times New Roman", serif;
+            font-family: 'Nexa Heavy';
             font-weight: bold;
             font-size: 20px;
-            color: #333;
+            color: black;
             margin-bottom: 10px;
         }
 
         .subtext {
-            font-family: "Times New Roman", serif;
-            font-weight: bold;
+            font-family: 'Nexa Light';
             font-size: 16px;
             color: #555;
+        }
+
+        .uploader-name {
+            font-family: 'Nexa Heavy';
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
         }
 
         /* Mobile Responsive Styles */
@@ -153,6 +170,41 @@
                 height: 250px;
             }
         }
+
+        /* Taskbar Styles */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: #fff;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .taskbar .circle {
+            width: 50px;
+            height: 50px;
+            background-color: #007BFF;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            position: relative;
+            top: -15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .taskbar .circle:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
@@ -167,6 +219,10 @@
 
     <div class="container" id="content-container">
         <div id="news-feed"></div>
+    </div>
+
+    <div class="taskbar">
+        <a href="post.html" class="circle">+</a>
     </div>
 
     <script type="module">
@@ -188,6 +244,12 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // Generate Random Color
+        const getRandomColor = () => {
+            const colors = ['red', 'green', 'blue', 'black', '#2e0250', ' #044946'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        };
 
         // Load News Data
         const loadNews = () => {
@@ -212,13 +274,17 @@
                     newsDiv.className = 'news-item';
 
                     const imageURL = item.imageUrl || 'placeholder.png';
+                    const uploaderName = item.uploaderName || 'Anonymous'; // Fallback if uploaderName is missing
+
+                    const headlineColor = getRandomColor();
 
                     newsDiv.innerHTML = `
                         <div class="image-box" style="background-image: url('${imageURL}');"></div>
                         <div class="news-content">
                             <span class="label">${formattedDate}</span>
-                            <div class="headline">${item.headline}</div>
+                            <div class="headline" style="color: ${headlineColor};">${item.headline}</div>
                             <div class="subtext">${item.subtext || 'No additional information available.'}</div>
+                            <div class="uploader-name">Shared by: <strong>${uploaderName}</strong></div>
                         </div>
                     `;
                     newsElements.unshift(newsDiv);
