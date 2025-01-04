@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post - Manage News</title>
+    <title>Admin - Manage News</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,52 +42,52 @@
         button:hover {
             background: #0056b3;
         }
-        .news-list {
-            margin-top: 20px;
-            text-align: left;
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
         }
-        .news-item {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+        .logo img {
+            width: 150px; /* Adjust the size of the logo */
         }
-        .news-item img {
-            max-width: 100%;
-            margin: 10px 0;
-        }
-        .delete-btn {
-            padding: 5px 10px;
-            background: #dc3545;
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
             color: white;
-            border: none;
-            cursor: pointer;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
         }
-        .delete-btn:hover {
-            background: #b21f2d;
+        .back-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Logo at the top -->
+        <div class="logo">
+            <img src="main.png" alt="Logo">
+        </div>
+
+        <!-- Back button -->
+        <a href="news.html" class="back-button">Back to News</a>
+
         <h1>Admin - Manage News</h1>
         <form id="news-form">
+            <input type="text" id="name" placeholder="Enter your name..." maxlength="100" required>
             <textarea id="headline" placeholder="Enter news headline..." maxlength="200" required></textarea>
             <textarea id="subtext" placeholder="Enter subtext (optional)..." maxlength="300"></textarea>
-            <input type="text" id="image-url" placeholder="Enter image URL (optional)" maxlength="500">
+            <input type="url" id="image-url" placeholder="Enter image URL (optional)" maxlength="500" pattern="https?://.+" title="Please enter a valid URL starting with http:// or https://">
             <button type="submit">Post Update</button>
         </form>
-
-        <div class="news-list" id="news-list">
-            <h2>Uploaded News</h2>
-        </div>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";  // Add authentication
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
@@ -102,87 +102,50 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const auth = getAuth(app);
 
         const newsRef = ref(db, 'news');
 
-        let currentUserId = null;
+        // List of abusive words in English, Hindi, and Bengali
+        const abusiveWords = [
+            "motherchod", "behenchod", "chutiya", "chut","lawda","lawda","kutta","kuttar bacha","bastard", "asshole", "idiot", "stupid", "fucker", "loser", 
+            "dog", "kutta", "bhenchod", "gaandu", "gandu", "chutiya", "madarchod", "salay", "bhadwa", 
+            "bakamash", "jhanda", "harami", "anarchist", "bengali", "gali", "bhens ki aankh", "chor", 
+            "behen ki aankh", "fuddu", "abey", "bekaar", "pidi", "udhar", "ma ki chut", "kutta"
+        ];
 
-        // Listen to auth state changes (logged in or logged out)
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is logged in
-                currentUserId = user.uid;
-                loadNews();  // Load news once user is authenticated
-            } else {
-                // User is logged out
-                alert("You need to be logged in to manage posts!");
-                window.location.href = "login.html";  // Redirect to login if not authenticated
-            }
-        });
+        // Function to check for abusive words
+        function containsAbusiveWords(text) {
+            const lowerCaseText = text.toLowerCase();
+            return abusiveWords.some(word => lowerCaseText.includes(word));
+        }
 
         // Upload news
         document.getElementById('news-form').addEventListener('submit', (e) => {
             e.preventDefault();
-
-            if (!currentUserId) return;  // Ensure user is logged in
-
+            
+            const name = document.getElementById('name').value;
             const headline = document.getElementById('headline').value;
             const subtext = document.getElementById('subtext').value;
             const imageUrl = document.getElementById('image-url').value;
 
-            push(newsRef, { headline, subtext, imageUrl, userId: currentUserId, date: new Date().toISOString() })
-                .then(() => {
-                    alert('News uploaded successfully!');
-                    document.getElementById('headline').value = '';
-                    document.getElementById('subtext').value = '';
-                    document.getElementById('image-url').value = '';
-                })
-                .catch((error) => {
-                    alert('Failed to upload news: ' + error.message);
-                });
+            // Check for abusive words in name, headline, and subtext
+            if (containsAbusiveWords(name) || containsAbusiveWords(headline) || containsAbusiveWords(subtext)) {
+                alert("Your submission contains inappropriate language. Please remove abusive words.");
+                return; // Stop the submission
+            }
+
+            if (name.trim() === "") {
+                alert("Name is required!");
+                return;
+            }
+
+            push(newsRef, { name, headline, subtext, imageUrl, date: new Date().toISOString() });
+            alert('News uploaded successfully!');
+            document.getElementById('headline').value = '';
+            document.getElementById('subtext').value = '';
+            document.getElementById('image-url').value = '';
+            document.getElementById('name').value = '';
         });
-
-        // Load news for the logged-in user only
-        const loadNews = () => {
-            const newsList = document.getElementById('news-list');
-            if (!currentUserId) return;  // Ensure user is logged in
-
-            onValue(newsRef, (snapshot) => {
-                newsList.innerHTML = '<h2>Uploaded News</h2>'; // Reset the list
-                const news = snapshot.val();
-                if (!news) return;
-
-                for (const key in news) {
-                    const item = news[key];
-                    if (item.userId === currentUserId) {  // Only display posts by the logged-in user
-                        const newsItemDiv = document.createElement('div');
-                        newsItemDiv.className = 'news-item';
-                        newsItemDiv.innerHTML = `
-                            <div>
-                                <h3>${item.headline}</h3>
-                                <p>${item.subtext || ''}</p>
-                                ${item.imageUrl ? `<img src="${item.imageUrl}" alt="News Image">` : ''}
-                            </div>
-                            <button class="delete-btn" data-key="${key}">Delete</button>
-                        `;
-                        newsList.appendChild(newsItemDiv);
-                    }
-                }
-
-                // Delete handler
-                const deleteButtons = document.querySelectorAll('.delete-btn');
-                deleteButtons.forEach((btn) => {
-                    btn.addEventListener('click', () => {
-                        const key = btn.getAttribute('data-key');
-                        const newsToDelete = ref(db, `news/${key}`);
-                        remove(newsToDelete)
-                            .then(() => alert('News deleted successfully!'))
-                            .catch((error) => alert('Failed to delete news: ' + error));
-                    });
-                });
-            });
-        };
     </script>
 </body>
 </html>

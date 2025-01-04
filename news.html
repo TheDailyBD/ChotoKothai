@@ -17,6 +17,11 @@
             src: url('Nexa-Light.ttf') format('truetype');
         }
 
+        @font-face {
+            font-family: 'Lato';
+            src: url('Lato-Regular.ttf') format('truetype');
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -72,13 +77,6 @@
             background-color: #f1f1f1;
         }
 
-        /* Hide Home Button on Smaller Screens */
-        @media (max-width: 768px) {
-            .nav a.home-link {
-                display: none;
-            }
-        }
-
         /* News Container */
         .container {
             max-width: 100%;
@@ -91,7 +89,7 @@
 
         /* News Card Style */
         .news-item {
-            background: #fff;
+            background: #fff7c5;
             width: 100%;
             max-width: 510px;
             border-radius: 8px;
@@ -118,7 +116,7 @@
             font-family: 'Nexa Heavy';
             font-weight: bold;
             color: #000000;
-            font-size: 14px;
+            font-size: 8px;
             margin-bottom: 8px;
             text-transform: uppercase;
         }
@@ -126,21 +124,21 @@
         .headline {
             font-family: 'Nexa Heavy';
             font-weight: bold;
-            font-size: 20px;
+            font-size: 22px;
             color: black;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
 
         .subtext {
-            font-family: 'Nexa Light';
+            font-family: 'Lato';
             font-size: 16px;
-            color: #555;
+            color: #000;
         }
 
         .uploader-name {
-            font-family: 'Nexa Heavy';
-            font-size: 14px;
-            color: #666;
+            font-family: 'Nexa heavy';
+            font-size: 11px;
+            color: #000;
             margin-top: 8px;
         }
 
@@ -245,12 +243,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Generate Random Color
-        const getRandomColor = () => {
-            const colors = ['red', 'green', 'blue', 'black', '#2e0250', ' #044946'];
-            return colors[Math.floor(Math.random() * colors.length)];
-        };
-
         // Load News Data
         const loadNews = () => {
             const newsRef = ref(db, 'news');
@@ -273,20 +265,19 @@
                     const newsDiv = document.createElement('div');
                     newsDiv.className = 'news-item';
 
-                    const imageURL = item.imageUrl || 'placeholder.png';
+                    const imageURL = item.imageUrl;
                     const uploaderName = item.uploaderName || 'Anonymous'; // Fallback if uploaderName is missing
 
-                    const headlineColor = getRandomColor();
-
                     newsDiv.innerHTML = `
-                        <div class="image-box" style="background-image: url('${imageURL}');"></div>
+                        ${imageURL ? `<div class="image-box" style="background-image: url('${imageURL}');"></div>` : ''}
                         <div class="news-content">
                             <span class="label">${formattedDate}</span>
-                            <div class="headline" style="color: ${headlineColor};">${item.headline}</div>
+                            <div class="headline">${item.headline}</div>
                             <div class="subtext">${item.subtext || 'No additional information available.'}</div>
                             <div class="uploader-name">Shared by: <strong>${uploaderName}</strong></div>
                         </div>
                     `;
+
                     newsElements.unshift(newsDiv);
                 }
 
