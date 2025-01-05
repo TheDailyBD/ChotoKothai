@@ -33,34 +33,37 @@
         button {
             width: 100%;
             padding: 10px;
-            background: #007bff;
+            background: #008000;
             color: #fff;
             border: none;
             font-size: 16px;
             cursor: pointer;
         }
         button:hover {
-            background: #0056b3;
+            background: #ff0000;
         }
         .logo {
             text-align: center;
             margin-bottom: 20px;
         }
         .logo img {
-            width: 150px; /* Adjust the size of the logo */
+            width: 400px; /* Adjust the size of the logo */
         }
         .back-button {
             display: inline-block;
             margin-bottom: 20px;
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #008000;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 15px;
+            font-size: 12px;
+            position: absolute;
+            left: 20px;
+            top: 20px;
         }
         .back-button:hover {
-            background-color: #0056b3;
+            background-color: #ff0000;
         }
     </style>
 </head>
@@ -71,7 +74,7 @@
             <img src="main.png" alt="Logo">
         </div>
 
-        <!-- Back button -->
+        <!-- Back button (after logo) -->
         <a href="news.html" class="back-button">Back to News</a>
 
         <h1>Admin - Manage News</h1>
@@ -80,6 +83,10 @@
             <textarea id="headline" placeholder="Enter news headline..." maxlength="200" required></textarea>
             <textarea id="subtext" placeholder="Enter subtext (optional)..." maxlength="300"></textarea>
             <input type="url" id="image-url" placeholder="Enter image URL (optional)" maxlength="500" pattern="https?://.+" title="Please enter a valid URL starting with http:// or https://">
+            <div style="text-align: left; margin-bottom: 10px;">
+                <label for="image-upload">Attach Image:</label>
+                <input type="file" id="image-upload" accept="image/*">
+            </div>
             <button type="submit">Post Update</button>
         </form>
     </div>
@@ -139,7 +146,14 @@
                 return;
             }
 
-            push(newsRef, { name, headline, subtext, imageUrl, date: new Date().toISOString() });
+            push(newsRef, { 
+                uploaderName: name, 
+                headline, 
+                subtext, 
+                imageUrl, 
+                date: new Date().toISOString() 
+            });
+
             alert('News uploaded successfully!');
             document.getElementById('headline').value = '';
             document.getElementById('subtext').value = '';
