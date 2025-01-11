@@ -7,31 +7,16 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         /* General Styles */
-        @font-face {
-            font-family: 'Nexa Heavy';
-            src: url('Nexa-Heavy.ttf') format('truetype');
-        }
-
-        @font-face {
-            font-family: 'Nexa Light';
-            src: url('Nexa-Light.ttf') format('truetype');
-        }
-
-        @font-face {
-            font-family: 'Lato';
-            src: url('Lato-Regular.ttf') format('truetype');
-        }
-
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif; /* Reverted to default font style */
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
-            line-height: 1.2;
-            background-image: url('background.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
+            background-image: url('background.jpg'); /* Background image */
+            background-size: cover; /* Ensure the image covers the entire background */
+            background-position: center; /* Center the background image */
+            background-attachment: fixed; /* Keep the image fixed during scrolling */
+            background-color: #f9f9f9; /* Fallback color */
+            line-height: 1.4;
         }
 
         .header {
@@ -77,25 +62,20 @@
             background-color: #f1f1f1;
         }
 
-        /* News Container */
         .container {
+            margin: 60px auto;
             max-width: 100%;
-            margin: 60px auto 20px;
             padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        /* News Card Style */
         .news-item {
             background: #fffdd0;
             width: 100%;
             max-width: 510px;
+            margin: 10px auto;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 8px 8px rgba(0, 0, 0, 0.1);
-            margin: 10px 0;
             display: flex;
             flex-direction: column;
         }
@@ -106,6 +86,7 @@
             background-color: #ddd;
             background-size: cover;
             background-position: center;
+            display: none; /* Default to hidden */
         }
 
         .news-content {
@@ -113,43 +94,54 @@
         }
 
         .label {
-            font-family: 'Nexa Heavy';
             font-weight: bold;
             color: #000000;
-            font-size: 8px;
+            font-size: 9px;
             margin-bottom: 8px;
             text-transform: uppercase;
         }
 
         .headline {
-            font-family: 'Nexa Heavy';
             font-weight: bold;
-            font-size: 22px;
+            font-size: 24px;
             color: black;
             margin-bottom: 4px;
         }
 
         .subtext {
-            font-family: 'Lato';
             font-size: 16px;
             color: #000;
         }
 
         .uploader-name {
-            font-family: 'Nexa heavy';
             font-size: 11px;
             color: #000;
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
-        /* Mobile Responsive Styles */
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
+        .like-button {
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #4bb908;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-            .news-item {
-                max-width: 100%;
+        .like-button.liked {
+            background-color: #ff0000;
+        }
+
+        .like-count {
+            margin-top: 5px;
+            font-size: 10px;
+            color: #555;
+        }
+
+        @media (max-width: 600px) {
+            .nav a:first-child {
+                display: none; /* Hide "Home" on mobile */
             }
 
             .headline {
@@ -160,22 +152,17 @@
                 font-size: 15px;
             }
 
-            .label {
-                font-size: 12px;
-            }
-
             .image-box {
                 height: 250px;
             }
         }
 
-        /* Taskbar Styles */
         .taskbar {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 60px;
+            height: 30px;
             background: #fff;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
@@ -205,7 +192,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="header">
         <img src="logo.png" alt="Logo">
@@ -215,9 +201,7 @@
         </div>
     </div>
 
-    <div class="container" id="content-container">
-        <div id="news-feed"></div>
-    </div>
+    <div class="container" id="news-feed"></div>
 
     <div class="taskbar">
         <a href="post.html" class="circle">+</a>
@@ -225,9 +209,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
             authDomain: "thedailybd-acdaf.firebaseapp.com",
@@ -239,49 +222,64 @@
             measurementId: "G-EML9VNGL8Z"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Load News Data
         const loadNews = () => {
             const newsRef = ref(db, 'news');
             const newsFeed = document.getElementById('news-feed');
-            newsFeed.innerHTML = '';
+            newsFeed.innerHTML = ''; // Clear old news before reloading
+
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
+            const currentTime = Date.now();
 
             onValue(newsRef, (snapshot) => {
+                newsFeed.innerHTML = ''; // Clear on new value
                 const news = snapshot.val();
-                const newsElements = [];
 
-                for (const key in news) {
-                    const item = news[key];
-                    const newsDate = new Date(item.date);
-                    const formattedDate = newsDate.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                    });
+                // Convert news object into an array and sort by date descending
+                const sortedNews = Object.keys(news).map(key => ({
+                    ...news[key],
+                    key
+                })).sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                    const newsDiv = document.createElement('div');
-                    newsDiv.className = 'news-item';
+                for (const item of sortedNews) {
+                    const newsDate = new Date(item.date).getTime();
 
-                    const imageURL = item.imageUrl;
-                    const uploaderName = item.uploaderName || 'Anonymous'; // Fallback if uploaderName is missing
+                    if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
+                        const newsDiv = document.createElement('div');
+                        newsDiv.className = 'news-item';
 
-                    newsDiv.innerHTML = `
-                        ${imageURL ? `<div class="image-box" style="background-image: url('${imageURL}');"></div>` : ''}
-                        <div class="news-content">
-                            <span class="label">${formattedDate}</span>
-                            <div class="headline">${item.headline}</div>
-                            <div class="subtext">${item.subtext || 'No additional information available.'}</div>
-                            <div class="uploader-name">Shared by: <strong>${uploaderName}</strong></div>
-                        </div>
-                    `;
+                        const imageBox = item.imageUrl 
+                            ? `<div class="image-box" style="background-image: url('${item.imageUrl}'); display: block;"></div>` 
+                            : '';
 
-                    newsElements.unshift(newsDiv);
+                        newsDiv.innerHTML = `
+                            ${imageBox}
+                            <div class="news-content">
+                                <span class="label">${new Date(item.date).toLocaleDateString()}</span>
+                                <div class="headline">${item.headline}</div>
+                                <div class="subtext">${item.subtext || ''}</div>
+                                <div class="uploader-name">Shared by: <strong>${item.uploaderName || 'Anonymous'}</strong></div>
+                                <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
+                                <div class="like-count">Likes: ${item.likes || 0}</div>
+                            </div>
+                        `;
+
+                        const likeButton = newsDiv.querySelector('.like-button');
+                        likeButton.addEventListener('click', () => {
+                            if (!likedPosts[item.key]) {
+                                likedPosts[item.key] = true;
+                                localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+                                const newLikes = (item.likes || 0) + 1;
+                                update(ref(db, `news/${item.key}`), { likes: newLikes });
+                                likeButton.classList.add('liked');
+                            }
+                        });
+
+                        newsFeed.appendChild(newsDiv);
+                    }
                 }
-
-                newsElements.forEach(element => newsFeed.appendChild(element));
             });
         };
 
