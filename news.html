@@ -8,14 +8,14 @@
     <style>
         /* General Styles */
         body {
-            font-family: 'Arial', sans-serif; /* Reverted to default font style */
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('background.jpg'); /* Background image */
-            background-size: cover; /* Ensure the image covers the entire background */
-            background-position: center; /* Center the background image */
-            background-attachment: fixed; /* Keep the image fixed during scrolling */
-            background-color: #f9f9f9; /* Fallback color */
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #f9f9f9;
             line-height: 1.4;
         }
 
@@ -69,7 +69,7 @@
         }
 
         .news-item {
-            background: #fffdd0;
+            background: #fff7b4;
             width: 100%;
             max-width: 510px;
             margin: 10px auto;
@@ -78,6 +78,7 @@
             box-shadow: 0 8px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
+            color: white;
         }
 
         .image-box {
@@ -86,7 +87,7 @@
             background-color: #ddd;
             background-size: cover;
             background-position: center;
-            display: none; /* Default to hidden */
+            display: none;
         }
 
         .news-content {
@@ -95,7 +96,7 @@
 
         .label {
             font-weight: bold;
-            color: #000000;
+            color: #000;
             font-size: 9px;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -106,6 +107,7 @@
             font-size: 24px;
             color: black;
             margin-bottom: 4px;
+    line-height: 1.1;
         }
 
         .subtext {
@@ -122,7 +124,7 @@
         .like-button {
             margin-top: 5px;
             padding: 5px 10px;
-            background-color: #4bb908;
+            background-color: #212521;
             color: white;
             border: none;
             border-radius: 4px;
@@ -136,12 +138,12 @@
         .like-count {
             margin-top: 5px;
             font-size: 10px;
-            color: #555;
+            color: #000;;
         }
 
         @media (max-width: 600px) {
             .nav a:first-child {
-                display: none; /* Hide "Home" on mobile */
+                display: none;
             }
 
             .headline {
@@ -162,7 +164,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 30px;
+            height: 70px;
             background: #fff;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
@@ -171,24 +173,21 @@
         }
 
         .taskbar .circle {
-            width: 40px;
-            height: 40px;
-            background-color: #008000;
+            width: 60px;
+            height: 60px;
+            background-color: #f1f1f1;
             border-radius: 50%;
+            margin: 0 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
-            font-size: 24px;
-            font-weight: bold;
             text-decoration: none;
-            position: relative;
-            top: -15px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        .taskbar .circle:hover {
-            background-color: #ff0000;
+        .taskbar .circle img {
+            width: 30px;
+            height: 30px;
         }
     </style>
 </head>
@@ -196,7 +195,7 @@
     <div class="header">
         <img src="logo.png" alt="Logo">
         <div class="nav">
-            <a href="index.html" class="home-link">Home</a>
+            <a href="index.html">Home</a>
             <a href="about.html">About Us</a>
         </div>
     </div>
@@ -204,7 +203,12 @@
     <div class="container" id="news-feed"></div>
 
     <div class="taskbar">
-        <a href="post.html" class="circle">+</a>
+        <a href="post.html" class="circle">
+            <img src="post.png" alt="Post">
+        </a>
+        <a href="profile.html" class="circle">
+            <img src="prof.png" alt="Profile">
+        </a>
     </div>
 
     <script type="module">
@@ -228,16 +232,15 @@
         const loadNews = () => {
             const newsRef = ref(db, 'news');
             const newsFeed = document.getElementById('news-feed');
-            newsFeed.innerHTML = ''; // Clear old news before reloading
+            newsFeed.innerHTML = '';
 
             const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
             const currentTime = Date.now();
 
             onValue(newsRef, (snapshot) => {
-                newsFeed.innerHTML = ''; // Clear on new value
+                newsFeed.innerHTML = '';
                 const news = snapshot.val();
 
-                // Convert news object into an array and sort by date descending
                 const sortedNews = Object.keys(news).map(key => ({
                     ...news[key],
                     key
