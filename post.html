@@ -24,7 +24,7 @@
             margin-bottom: 20px;
         }
         .logo img {
-            width: 100px;
+            width: 300px;
             height: auto;
         }
         h1 {
@@ -68,6 +68,15 @@
             height: 40px;
             cursor: pointer;
         }
+        .file-name {
+            font-size: 14px;
+            color: #555;
+            margin-left: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 70%;
+        }
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -108,12 +117,16 @@
             <input type="text" id="name" placeholder="Enter your name" maxlength="100" required>
             <textarea id="headline" placeholder="Enter news headline" maxlength="200" required></textarea>
             <textarea id="subtext" placeholder="Enter subtext (optional)" maxlength="300"></textarea>
+
             <div class="attachment-container">
-                <input type="url" id="image-url" placeholder="Enter image URL (optional)" maxlength="500" pattern="https?://.+" title="Please enter a valid URL starting with http:// or https://">
+                <input type="url" id="image-url" placeholder="Enter image URL (optional)" maxlength="500">
+            </div>
+            <div class="attachment-container">
                 <label for="file-upload">
                     <img src="attach.png" alt="Attach">
                 </label>
                 <input type="file" id="file-upload" style="display: none;" accept="image/*">
+                <span id="file-name" class="file-name">No file selected</span>
             </div>
             <button type="submit">Submit News</button>
         </form>
@@ -153,56 +166,69 @@
         // Reference to the "news" data in the database
         const newsRef = ref(db, 'news');
 
-        // Function to check for abusive words
-        const abusiveWords = [
-            "motherchod", "behenchod", "chutiya", "chut", "lawda", "kutta", "bastard", "idiot", "fucker", "loser"
-        ];
+        // Handle file upload
+        const fileUpload = document.getElementById('file-upload');
+        const fileNameDisplay = document.getElementById('file-name');
+        const imageUrlInput = document.getElementById('image-url');
 
-        function containsAbusiveWords(text) {
-            const lowerCaseText = text.toLowerCase();
-            return abusiveWords.some(word => lowerCaseText.includes(word));
-        }
+        fileUpload.addEventListener('change', () => {
+            const file = fileUpload.files[0];
+            if (file) {
+                fileNameDisplay.textContent = file.name;
+                imageUrlInput.value = ""; // Clear URL if file is selected
+            } else {
+                fileNameDisplay.textContent = "No file selected";
+            }
+        });
+
+        imageUrlInput.addEventListener('input', () => {
+            if (imageUrlInput.value) {
+                fileUpload.value = ""; // Clear file upload if URL is entered
+                fileNameDisplay.textContent = "No file selected";
+            }
+        });
 
         // Handle news submission
-        document.getElementById('news-form').addEventListener('submit', (e) => {
+        document.getElementById('news-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const name = document.getElementById('name').value;
             const headline = document.getElementById('headline').value;
             const subtext = document.getElementById('subtext').value;
-            const imageUrl = document.getElementById('image-url').value;
-            const fileUpload = document.getElementById('file-upload').files[0];
+            const file = fileUpload.files[0];
+            const imageUrl = imageUrlInput.value;
 
-            // Validate inputs and check for abusive words
-            if (containsAbusiveWords(name) || containsAbusiveWords(headline) || containsAbusiveWords(subtext)) {
-                alert("Your submission contains abusive language. Please edit and try again.");
-                return;
+            let attachmentUrl = "";
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                    attachmentUrl = reader.result;
+                    await submitNews(name, headline, subtext, attachmentUrl);
+                };
+                reader.readAsDataURL(file);
+            } else if (imageUrl) {
+                attachmentUrl = imageUrl;
+                await submitNews(name, headline, subtext, attachmentUrl);
+            } else {
+                alert("Please provide an image by uploading a file or entering a URL.");
             }
+        });
 
-            if (name.trim() === "" || headline.trim() === "") {
-                alert("Name and headline are required!");
-                return;
-            }
-
-            // Handle file upload
-            const attachmentUrl = fileUpload ? URL.createObjectURL(fileUpload) : imageUrl;
-
-            // Push the news to the database
-            push(newsRef, {
+        async function submitNews(name, headline, subtext, attachmentUrl) {
+            await push(newsRef, {
                 uploaderName: name,
                 headline,
                 subtext,
                 imageUrl: attachmentUrl,
-                deviceId: localStorage.getItem('deviceId'),
+                deviceId: localStorage.getItem('deviceId') || 'unknown',
                 date: new Date().toISOString()
-            }).then(() => {
-                alert('News submitted successfully!');
-                document.getElementById('news-form').reset();
-            }).catch((error) => {
-                console.error("Error uploading news:", error);
-                alert("Failed to submit news. Please try again.");
             });
-        });
+
+            alert("News submitted successfully!");
+            document.getElementById('news-form').reset();
+            document.getElementById('file-name').textContent = "No file selected";
+        }
     </script>
 </body>
 </html>
