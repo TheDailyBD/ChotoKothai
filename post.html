@@ -40,6 +40,9 @@
             border-radius: 15px;
             border: 2px solid #ccc;
         }
+        #headline {
+            text-transform: uppercase;
+        }
         textarea:focus, input:focus {
             border-color: #008000;
             outline: none;
@@ -211,7 +214,8 @@
                 attachmentUrl = imageUrl;
                 await submitNews(name, headline, subtext, attachmentUrl);
             } else {
-                alert("Please provide an image by uploading a file or entering a URL.");
+                // Proceed without an image
+                await submitNews(name, headline, subtext, attachmentUrl);
             }
         });
 
@@ -220,7 +224,7 @@
                 uploaderName: name,
                 headline,
                 subtext,
-                imageUrl: attachmentUrl,
+                imageUrl: attachmentUrl, // This will be an empty string if no image is provided
                 deviceId: localStorage.getItem('deviceId') || 'unknown',
                 date: new Date().toISOString()
             });
