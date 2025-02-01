@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +9,7 @@
     <style>
         /* General Styles */
         body {
-            font-family: 'Gotham', sans-serif;
+            font-family: 'Alegreya', sans-serif;
             margin: 0;
             padding: 0;
             background-image: url('background.jpg');
@@ -96,6 +97,7 @@
         }
 
         .label {
+            font-family: 'Gotham', sans-serif;
             font-weight: bold;
             color: #000;
             font-size: 9px;
@@ -104,29 +106,33 @@
         }
 
         .headline {
-            font-family: 'Gotham', serif;
+            font-family: 'Alegreya', serif;
             font-weight: bold;
             font-size: 20px;
             color: #000;
             margin-bottom: 4px;
             line-height: 1.1;
     text-transform: uppercase; /* Ensure text is always in uppercase */
+    text-align: center; /* Center align the text */
         }
 
         .subtext {
             font-weight: regular;
-            font-size: 14px;
+            font-size: 10px;
             color: #000;
             font-family: 'Gotham', sans-serif;
+   text-align: center; /* Center align the text */
         }
 
         .uploader-name {
+            font-family: 'Gotham', sans-serif;
             font-size: 11px;
             color: #000;
             margin-top: 15px;
         }
 
         .like-button {
+            font-family: 'Gotham', sans-serif;
             margin-top: 5px;
             padding: 5px 10px;
             background-color: #000000;
@@ -137,10 +143,12 @@
         }
 
         .like-button.liked {
+            font-family: 'Gotham', sans-serif;
             background-color: #ff0000;
         }
 
         .like-count {
+            font-family: 'Gotham', sans-serif;
             margin-top: 5px;
             font-size: 10px;
             color: #000;
@@ -303,16 +311,20 @@
 
                         newsDiv.innerHTML = `
                             ${imageBox}
-                            <div class="news-content">
+                            <                            <div class="news-content">
                                 <span class="label">${new Date(item.date).toLocaleDateString()}</span>
                                 <div class="headline">${item.headline}</div>
                                 <div class="subtext">${item.subtext || ''}</div>
-                                <div class="uploader-name">Shared by: <strong>${item.uploaderName || 'Anonymous'}</strong></div>
+                                <div class="uploader-name">
+    Shared by: <a href="profile.html?id=${item.uploaderId || 'unknown'}" class="profile-link">
+    <strong>${item.uploaderName || 'Anonymous'}</strong></a>
+</div>
+
                                 <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
                                 <div class="like-count">Likes: ${item.likes || 0}</div>
-                            </div>
-                            <div class="sponsor-box">FREE JAL AND SPLITE ARE BEST - CALL IN ; 11223344</div>
-                        `;
+                   <div class="sponsor-box">
+    <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
+</div>  `;
 
                         const likeButton = newsDiv.querySelector('.like-button');
                         likeButton.addEventListener('click', () => {
