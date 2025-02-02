@@ -83,14 +83,16 @@
             border: .1px solid black; /* Added stroke */
         }
 
-        .image-box {
-            width: 100%;
-            height: 300px;
-            background-color: #ddd;
-            background-size: cover;
-            background-position: center;
-            cursor: pointer;
-        }
+    .image-box {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background-color: #ddd;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+
+}
 
         .news-content {
             padding: 15px;
@@ -154,14 +156,18 @@
             color: #000;
         }
 
-        .sponsor-box {
-            height: 30px;
-            background-color: #DE0606;
-            text-align: center;
-            line-height: 30px;
-            font-size: 11px;
-            font-weight: bold;
-            color: WHITE;
+  .sponsor-box {
+    height: 40px;
+    background-color: #DE0606;
+    text-align: center;
+    line-height: 0px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
         }
 
         @media (max-width: 600px) {
@@ -311,21 +317,21 @@
 
                         newsDiv.innerHTML = `
                             ${imageBox}
-                            <                            <div class="news-content">
-                                <span class="label">${new Date(item.date).toLocaleDateString()}</span>
-                                <div class="headline">${item.headline}</div>
-                                <div class="subtext">${item.subtext || ''}</div>
-                                <div class="uploader-name">
-    Shared by: <a href="profile.html?id=${item.uploaderId || 'unknown'}" class="profile-link">
-    <strong>${item.uploaderName || 'Anonymous'}</strong></a>
-</div>
-
-                                <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
-                                <div class="like-count">Likes: ${item.likes || 0}</div>
-                   <div class="sponsor-box">
-    <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
-</div>  `;
-
+    <div class="news-content">
+        <span class="label">${new Date(item.date).toLocaleDateString()}</span>
+        <div class="headline">${item.headline}</div>
+        <div class="subtext">${item.subtext || ''}</div>
+        <div class="uploader-name">
+            Shared by: <a href="profile.html?id=${item.uploaderId || 'unknown'}" class="profile-link">
+            <strong>${item.uploaderName || 'Anonymous'}</strong></a>
+        </div>
+        <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
+        <div class="like-count">Likes: ${item.likes || 0}</div>
+    </div>
+    <div class="sponser-box">
+        <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
+    </div>
+`;
                         const likeButton = newsDiv.querySelector('.like-button');
                         likeButton.addEventListener('click', () => {
                             if (!likedPosts[item.key]) {
