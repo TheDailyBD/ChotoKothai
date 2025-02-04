@@ -356,10 +356,13 @@
             modal.classList.add('active');
         };
 
-        const closeModal = () => {
-            const modal = document.getElementById('image-modal');
-            modal.classList.remove('active');
-        };
+const closeModal = () => {
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    modal.classList.remove('active');
+    modalImage.src = ''; // Clear image source to avoid glitches
+};
+
 
         window.onload = loadNews;
     </script>
