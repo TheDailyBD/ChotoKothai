@@ -174,12 +174,18 @@ body {
     margin-top: 5px;
 }
 
-/* Responsive Fix for Mobile */
-@media (max-width: 400px) {
-    .nav a:first-child {
-        display: none;
-    }
+.sponsor-box img {
+    width: 100%;   /* Make the image fill the width of the box */
+    height: 100%;  /* Make it exactly fit the height */
+    object-fit: cover; /* Ensures it covers the box properly */
+}
 
+/* Mobile View Fix */
+@media (max-width: 400px) {
+    .sponsor-box {
+        width: 350px !important; /* Make the box fit mobile news width */
+    }
+}
     /* Ensure the news box remains same width as desktop */
     .news-item {
         width: 350px !important;
