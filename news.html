@@ -174,21 +174,18 @@ body {
     margin-top: 5px;
 }
 
-.sponsor-box img {
-    width: 100%;  /* Make the image fill the width of the box */
-    height: 100%; /* Make it exactly fit the height */
-    object-fit: cover; /* Ensures it covers the box properly */
-}
-
 /* Responsive Fix for Mobile */
 @media (max-width: 400px) {
+    .sponsor-box img {
+        content: url('sponsermobil.jpg');
+    }
     .nav a:first-child {
         display: none;
     }
 
     /* Ensure the news box remains same width as desktop */
     .news-item {
-        width: 350px !important;
+        width: 400px !important;
     }
 
     /* Keep text size same on mobile */
@@ -201,12 +198,10 @@ body {
     }
 
     .image-box {
-        height: 300px !important;
+        height: 400px !important;
     }
-    
-    .sponsor-box {
-        width: 350px !important; /* Adjust sponsor box width for mobile */
-    }
+}
+
 /* Taskbar */
 .taskbar {
     position: fixed;
