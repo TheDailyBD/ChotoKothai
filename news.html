@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chotokothai - News</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <style>
 /* General Styles */
 body {
     font-family: 'Alegreya', sans-serif;
@@ -174,15 +173,34 @@ body {
     margin-top: 5px;
 }
 
-/* Responsive Fix for Mobile */
+.sponsor-box img {
+    width: 100%;  /* Make the image fill the width of the box */
+    height: 100%; /* Make it exactly fit the height */
+    object-fit: cover; /* Ensures it covers the box properly */
+}
+
+/* Responsive Image for Sponsor Box */
+.sponsor-box {
+    background-image: url('sponser.png');
+    background-size: cover;
+    background-position: center;
+}
+
 @media (max-width: 600px) {
+    .sponsor-box {
+        background-image: url('sponsermobil.jpg');
+    }
+}
+
+/* Responsive Fix for Mobile */
+@media (max-width: 400px) {
     .nav a:first-child {
         display: none;
     }
 
     /* Ensure the news box remains same width as desktop */
     .news-item {
-        width: 510px !important;
+        width: 350px !important;
     }
 
     /* Keep text size same on mobile */
@@ -195,7 +213,11 @@ body {
     }
 
     .image-box {
-        height: 290px !important;
+        height: 300px !important;
+    }
+
+    .sponsor-box {
+        width: 350px !important; /* Adjust sponsor box width for mobile */
     }
 }
 
@@ -254,7 +276,7 @@ body {
 .modal.active {
     display: flex;
 }
-    </style>
+
 </head>
 <body>
     <div class="header">
