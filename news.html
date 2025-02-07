@@ -6,280 +6,253 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chotokothai - News</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-   <style>
-/* General Styles */
-body {
-    font-family: 'Alegreya', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-image: url('background.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-color: #f9f9f9;
-    line-height: 1.4;
-}
+ <style>
+        /* General Styles */
+        body {
+            font-family: 'Alegreya', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #f9f9f9;
+            line-height: 1.4;
+        }
 
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #FFFFFF;
-    color: black;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-}
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #FFFFFF;
+            color: black;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
 
-.header img {
-    width: 150px;
-    height: 40px;
-    margin-right: 10px;
-}
+        .header img {
+            width: 150px;
+            height: 40px;
+            margin-right: 10px;
+        }
 
-.nav {
-    display: flex;
-    margin-left: auto;
-}
+        .nav {
+            display: flex;
+            margin-left: auto;
+        }
 
-.nav a {
-    color: black;
-    text-decoration: none;
-    padding: 14px 20px;
-    font-size: 16px;
-    border-left: 1px solid #ddd;
-}
+        .nav a {
+            color: black;
+            text-decoration: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-left: 1px solid #ddd;
+        }
 
-.nav a:first-child {
-    border-left: none;
-}
+        .nav a:first-child {
+            border-left: none;
+        }
 
-.nav a:hover {
-    background-color: #f1f1f1;
-}
+        .nav a:hover {
+            background-color: #f1f1f1;
+        }
 
-.container {
-    margin: 80px auto;
-    max-width: 100%;
-    padding: 10px;
-}
+        .container {
+            margin: 80px auto;
+            max-width: 800px;
+            padding: 10px;
+        }
 
-/* News Box Styles */
-.news-item {
-    background: #f5f4ef;
-    width: 510px !important; /* Fixed width */
-    max-width: 510px; /* Prevent shrinking */
-    margin: 10px auto;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 8px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    color: white;
-    border: 0.1px solid black;
-}
+        /* News Box Styles */
+        .news-item {
+            background: #f5f4ef;
+            width: 100%;
+            max-width: 510px;
+            margin: 10px auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            color: white;
+            border: 0.1px solid black;
+        }
 
-/* Image Box */
-.image-box {
-    position: relative;
-    width: 100%;
-    height: 290px; /* Fixed height */
-    background-color: #ddd;
-    background-size: cover;
-    background-position: center;
-    cursor: pointer;
-}
+        /* Image Box */
+        .image-box {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+        }
 
-/* News Content */
-.news-content {
-    padding: 15px;
-}
+        /* News Content */
+        .news-content {
+            padding: 15px;
+        }
 
-.label {
-    font-family: 'Gotham', sans-serif;
-    font-weight: bold;
-    color: #000;
-    font-size: 9px;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
+        .label {
+            font-family: 'Gotham', sans-serif;
+            font-weight: bold;
+            color: #000;
+            font-size: 9px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
 
-.headline {
-    font-family: 'Alegreya', serif;
-    font-weight: bold;
-    font-size: 20px;
-    color: #000;
-    margin-bottom: 4px;
-    line-height: 1.1;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-.subtext {
-    font-weight: regular;
-    font-size: 10px;
-    color: #000;
-    font-family: 'Gotham', sans-serif;
-    text-align: center;
-}
-
-/* Uploader Name */
-.uploader-name {
-    font-family: 'Gotham', sans-serif;
-    font-size: 11px;
-    color: #000;
-    margin-top: 15px;
-}
-
-/* Like Button */
-.like-button {
-    font-family: 'Gotham', sans-serif;
-    margin-top: 5px;
-    padding: 5px 10px;
-    background-color: #000000;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.like-button.liked {
-    background-color: #ff0000;
-}
-
-.like-count {
-    font-family: 'Gotham', sans-serif;
-    margin-top: 5px;
-    font-size: 10px;
-    color: #000;
-}
-
-/* Sponsor Box */
-.sponsor-box {
-    height: 40px;
-    background-color: #DE0606;
-    text-align: center;
-    line-height: 0px;
-    font-size: 11px;
-    font-weight: bold;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 5px;
-}
-
-.sponsor-box img {
-    width: 100%;  /* Make the image fill the width of the box */
-    height: 100%; /* Make it exactly fit the height */
-    object-fit: cover; /* Ensures it covers the box properly */
-}
-
-/* Responsive Image for Sponsor Box */
-.sponsor-box {
-    background-image: url('sponser.png');
-    background-size: cover;
-    background-position: center;
-}
-
-@media (max-width: 600px) {
-    .sponsor-box {
-        background-image: url('sponsermobil.jpg');
-    }
-}
-
-/* Responsive Fix for Mobile */
-@media (max-width: 400px) {
-    .nav a:first-child {
-        display: none;
+        .headline {
             font-family: 'Alegreya', serif;
-    font-weight: bold;
-    }
+            font-weight: bold;
+            font-size: 20px;
+            color: #000;
+            margin-bottom: 4px;
+            line-height: 1.1;
+            text-transform: uppercase;
+            text-align: center;
+        }
 
-    /* Ensure the news box remains same width as desktop */
-    .news-item {
-        width: 350px !important;
-    }
+        .subtext {
+            font-size: 10px;
+            color: #000;
+            font-family: 'Gotham', sans-serif;
+            text-align: center;
+        }
 
-    /* Keep text size same on mobile */
-    .headline {
-        font-size: 20px !important;
-    }
+        /* Uploader Name */
+        .uploader-name {
+            font-family: 'Gotham', sans-serif;
+            font-size: 11px;
+            color: #000;
+            margin-top: 15px;
+        }
 
-    .subtext {
-        font-size: 10px !important;
-    }
+        /* Like Button */
+        .like-button {
+            font-family: 'Gotham', sans-serif;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    .image-box {
-        height: 300px !important;
-    }
+        .like-button.liked {
+            background-color: #ff0000;
+        }
 
-    .sponsor-box {
-        width: 350px !important; /* Adjust sponsor box width for mobile */
-    }
-}
+        .like-count {
+            font-family: 'Gotham', sans-serif;
+            margin-top: 5px;
+            font-size: 10px;
+            color: #000;
+        }
 
-/* Taskbar */
-.taskbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 70px;
-    background: #fff;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        /* Sponsor Box */
+        .sponsor-box {
+            height: 40px;
+            background-color: #DE0606;
+            text-align: center;
+            line-height: 40px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            margin-top: 5px;
+        }
 
-.taskbar .circle {
-    width: 60px;
-    height: 60px;
-    background-color: #f1f1f1;
-    border-radius: 50%;
-    margin: 0 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+        @media (max-width: 600px) {
+            .container {
+                max-width: 95%;
+                padding: 0;
+            }
 
-.taskbar .circle img {
-    width: 30px;
-    height: 30px;
-}
+            .news-item {
+                width: 100%;
+            }
 
-/* Modal Styles */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
+            .image-box {
+                height: 300px;
+            }
 
-.modal img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 8px;
-}
+            .headline {
+                font-size: 18px;
+            }
 
-.modal.active {
-    display: flex;
-}
-   </style>
+            .subtext {
+                font-size: 9px;
+            }
+
+            .sponsor-box {
+                font-size: 10px;
+            }
+        }
+
+        /* Taskbar */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: #fff;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .taskbar .circle {
+            width: 60px;
+            height: 60px;
+            background-color: #f1f1f1;
+            border-radius: 50%;
+            margin: 0 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .taskbar .circle img {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+    </style>
 </head>
 <body>
     <div class="header">
