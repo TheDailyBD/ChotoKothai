@@ -158,17 +158,22 @@
             color: #000;
         }
 
-        /* Sponsor Box */
-        .sponsor-box {
-            height: 40px;
-            background-color: #DE0606;
-            text-align: center;
-            line-height: 40px;
-            font-size: 11px;
-            font-weight: bold;
-            color: white;
-            margin-top: 5px;
-        }
+    /* Sponsor Box */
+.sponsor-box {
+    height: 40px;
+    background-image: url('sponser.png'); /* Default image */
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    line-height: 40px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+}
 
         @media (max-width: 600px) {
             .container {
@@ -192,11 +197,10 @@
                 font-size: 9px;
             }
 
-            .sponsor-box {
-                font-size: 10px;
-            }
-        }
-
+             .sponsor-box {
+        background-image: url('sponsermobil.jpg'); /* Mobile-specific image */
+    }
+}
         /* Taskbar */
         .taskbar {
             position: fixed;
