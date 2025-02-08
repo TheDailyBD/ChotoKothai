@@ -377,8 +377,21 @@ const closeModal = () => {
     modalImage.src = ''; // Clear image source to avoid glitches
 };
 
+   // Sponsor Image Update for Mobile/Desktop
+        function updateSponsorImage() {
+            const sponsorImage = document.getElementById("sponsor-image");
+            if (window.innerWidth <= 600) {
+                sponsorImage.src = "sponsermobil.jpg";
+            } else {
+                sponsorImage.src = "sponser.png";
+            }
+        }
 
-        window.onload = loadNews;
+        window.onload = () => {
+            loadNews();
+            updateSponsorImage();
+        };
+        window.addEventListener("resize", updateSponsorImage);
     </script>
 </body>
 </html>
