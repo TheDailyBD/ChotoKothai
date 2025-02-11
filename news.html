@@ -256,9 +256,56 @@
         .modal.active {
             display: flex;
         }
-    </style>
+}
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Close Button */
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.close-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}   
+ </style>
 </head>
 <body>
+<!-- Image Modal for Fullscreen View -->
+<div id="image-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal()">&times;</span>
+        <img id="modal-image" src="" alt="Zoomed Image">
+    </div>
+</div>
+
     <div class="header">
         <img src="logo.png" alt="Logo">
         <div class="nav">
@@ -268,6 +315,11 @@
     </div>
 
     <div class="container" id="news-feed"></div>
+<div id="image-modal" class="modal">
+    <span class="close-button" onclick="closeModal()">&times;</span>
+    <img id="modal-image" src="" alt="Zoomed Image">
+</div>
+
 
     <div class="taskbar">
         <a href="post.html" class="circle">
@@ -278,10 +330,7 @@
         </a>
     </div>
 
-    <!-- Modal for Image Zoom -->
-    <div id="image-modal" class="modal" onclick="closeModal()">
-        <img id="modal-image" src="" alt="Zoomed Image">
-    </div>
+    <!-- Image Modal for Fullscreen View -->
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -323,7 +372,12 @@
 
                     if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
                         const newsDiv = document.createElement('div');
-                        newsDiv.className = 'news-item';
+newsDiv.className = 'news-item';
+newsDiv.style.backgroundImage = "url('1.JPG')"; // Set background image
+newsDiv.style.backgroundSize = "cover"; // Ensure it covers the box
+newsDiv.style.backgroundPosition = "center"; // Center the image
+newsDiv.style.backgroundRepeat = "no-repeat"; // No repeat
+
 
                         const imageBox = item.imageUrl 
                             ? `<div class="image-box" style="background-image: url('${item.imageUrl}');" onclick="openModal('${item.imageUrl}')"></div>` 
@@ -363,35 +417,29 @@
             });
         };
 
-        const openModal = (imageUrl) => {
-            const modal = document.getElementById('image-modal');
-            const modalImage = document.getElementById('modal-image');
-            modalImage.src = imageUrl;
-            modal.classList.add('active');
-        };
-
-const closeModal = () => {
+ // Function to open modal and show image
+function openModal(imageUrl) {
     const modal = document.getElementById('image-modal');
     const modalImage = document.getElementById('modal-image');
-    modal.classList.remove('active');
-    modalImage.src = ''; // Clear image source to avoid glitches
-};
+    modalImage.src = imageUrl;
+    modal.style.display = "flex";  // Show modal
+}
 
-   // Sponsor Image Update for Mobile/Desktop
-        function updateSponsorImage() {
-            const sponsorImage = document.getElementById("sponsor-image");
-            if (window.innerWidth <= 400) {
-                sponsorImage.src = "sponsermobil.jpg";
-            } else {
-                sponsorImage.src = "sponser.png";
-            }
-        }
+// Function to close modal
+function closeModal() {
+    document.getElementById('image-modal').style.display = "none";
+}
 
-        window.onload = () => {
-            loadNews();
-            updateSponsorImage();
-        };
-        window.addEventListener("resize", updateSponsorImage);
+// Add click event to all image boxes
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".image-box").forEach(imageBox => {
+        imageBox.addEventListener("click", function () {
+            const imageUrl = this.style.backgroundImage.slice(5, -2); // Extract URL
+            openModal(imageUrl);
+        });
+    });
+});
+        window.onload = loadNews;
     </script>
 </body>
 </html>
