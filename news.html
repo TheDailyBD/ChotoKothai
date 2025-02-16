@@ -158,24 +158,23 @@
             color: #000;
         }
 
-    /* Sponsor Box */
     .sponsor-box {
-        height: 40px;
-        background-image: url('sponser.png'); /* Default image for larger screens */
-        background-size: cover;
-        background-position: center;
-        text-align: center;
-        line-height: 40px;
-        font-size: 11px;
-        font-weight: bold;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 5px;
-    }
-
-        @media (max-width: 600px) {
+    height: 40px;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    line-height: 40px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    background-image: url('sponser.png'); /* Default for PC */
+}
+/* Apply this only for mobile screens (less than 600px width) */
+@media (max-width: 600px) {
             .container {
                 max-width: 95%;
                 padding: 0;
@@ -197,9 +196,9 @@
                 font-size: 9px;
             }
 
-        .sponsor-box {
-            background-image: url('sponsermobil.jpg'); /* Mobile-specific image */
-        }
+       .sponsor-box {
+        background-image: url('sponsermobil.jpg'); /* Mobile-specific image */
+    }
 }
         /* Taskbar */
         .taskbar {
@@ -309,7 +308,7 @@
     <div class="header">
         <img src="logo.png" alt="Logo">
         <div class="nav">
-            <a href="index.html">Home</a>
+
             <a href="about.html">About Us</a>
         </div>
     </div>
@@ -396,9 +395,10 @@ newsDiv.style.backgroundRepeat = "no-repeat"; // No repeat
         <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
         <div class="like-count">Likes: ${item.likes || 0}</div>
     </div>
-    <div class="sponser-box">
-        <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
-    </div>
+   <div class="sponser-box">
+    <img src="sponser.png" alt="Sponsor" id="sponsor-img" style="height: 100%; width: auto;">
+</div>
+
 `;
                         const likeButton = newsDiv.querySelector('.like-button');
                         likeButton.addEventListener('click', () => {
