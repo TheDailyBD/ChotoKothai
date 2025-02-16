@@ -395,9 +395,15 @@ newsDiv.style.backgroundRepeat = "no-repeat"; // No repeat
         <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
         <div class="like-count">Likes: ${item.likes || 0}</div>
     </div>
-   <div class="sponser-box">
-    <img src="sponser.png" alt="Sponsor" id="sponsor-img" style="height: 100%; width: auto;">
+   <div class="sponsor-box">
+    <picture>
+        <!-- Mobile version (for devices with max width 600px) -->
+        <source srcset="sponsermobil.jpg" media="(max-width: 600px)">
+        <!-- Default (PC version) -->
+        <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
+    </picture>
 </div>
+
 
 `;
                         const likeButton = newsDiv.querySelector('.like-button');
