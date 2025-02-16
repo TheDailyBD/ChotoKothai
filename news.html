@@ -439,6 +439,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+function updateSponsorImage() {
+    const sponsorImg = document.getElementById('sponsor-image');
+
+    if (window.innerWidth <= 600) {
+        sponsorImg.src = "sponsermobil.jpg"; // Show mobile image
+    } else {
+        sponsorImg.src = "sponser.png"; // Show desktop image
+    }
+}
+
+// Run function when page loads
+window.onload = function() {
+    loadNews(); // Load news function
+    updateSponsorImage(); // Update sponsor image
+};
+
+// Run function when window resizes
+window.onresize = updateSponsorImage;
+
         window.onload = loadNews;
     </script>
 </body>
