@@ -342,81 +342,78 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+const loadNews = () => {
+    const newsRef = ref(db, 'news');
+    const newsFeed = document.getElementById('news-feed');
+    newsFeed.innerHTML = '';
 
-        const loadNews = () => {
-            const newsRef = ref(db, 'news');
-            const newsFeed = document.getElementById('news-feed');
-            newsFeed.innerHTML = '';
+    const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
+    const currentTime = Date.now();
 
-            const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
-            const currentTime = Date.now();
+    onValue(newsRef, (snapshot) => {
+        newsFeed.innerHTML = '';
+        const news = snapshot.val();
 
-            onValue(newsRef, (snapshot) => {
-                newsFeed.innerHTML = '';
-                const news = snapshot.val();
+        const sortedNews = Object.keys(news).map(key => ({
+            ...news[key],
+            key
+        })).sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                const sortedNews = Object.keys(news).map(key => ({
-                    ...news[key],
-                    key
-                })).sort((a, b) => new Date(b.date) - new Date(a.date));
+        for (const item of sortedNews) {
+            const newsDate = new Date(item.date).getTime();
 
-                for (const item of sortedNews) {
-                    const newsDate = new Date(item.date).getTime();
+            if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
+                const newsDiv = document.createElement('div');
+                newsDiv.className = 'news-item';
+                newsDiv.style.backgroundImage = "url('1.JPG')"; // Set background image
+                newsDiv.style.backgroundSize = "cover"; // Ensure it covers the box
+                newsDiv.style.backgroundPosition = "center"; // Center the image
+                newsDiv.style.backgroundRepeat = "no-repeat"; // No repeat
 
-                    if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
-                        const newsDiv = document.createElement('div');
-newsDiv.className = 'news-item';
-newsDiv.style.backgroundImage = "url('1.JPG')"; // Set background image
-newsDiv.style.backgroundSize = "cover"; // Ensure it covers the box
-newsDiv.style.backgroundPosition = "center"; // Center the image
-newsDiv.style.backgroundRepeat = "no-repeat"; // No repeat
+                const imageBox = item.imageUrl 
+                    ? `<div class="image-box" style="background-image: url('${item.imageUrl}');" onclick="openModal('${item.imageUrl}')"></div>` 
+                    : '';
 
+                newsDiv.innerHTML = `
+                    ${imageBox}
+                    <div class="news-content">
+                        <span class="label">${new Date(item.date).toLocaleDateString()}</span>
+                        <div class="headline">${item.headline}</div>
+                        <div class="subtext">${item.subtext || ''}</div>
+                        <div class="uploader-name">
+                            <img src="${item.uploaderPhoto}" alt="User DP" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                            Shared by: 
+                            <strong>${item.uploaderName || 'Anonymous'}</strong></a>
+                        </div>
+                        <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
+                        <div class="like-count">Likes: ${item.likes || 0}</div>
+                    </div>
+                    <div class="sponsor-box">
+                        <picture>
+                            <!-- Mobile version (for devices with max width 600px) -->
+                            <source srcset="sponsermobil.jpg" media="(max-width: 600px)">
+                            <!-- Default (PC version) -->
+                            <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
+                        </picture>
+                    </div>
+                `;
 
-                        const imageBox = item.imageUrl 
-                            ? `<div class="image-box" style="background-image: url('${item.imageUrl}');" onclick="openModal('${item.imageUrl}')"></div>` 
-                            : '';
-
-                        newsDiv.innerHTML = `
-                            ${imageBox}
-    <div class="news-content">
-        <span class="label">${new Date(item.date).toLocaleDateString()}</span>
-        <div class="headline">${item.headline}</div>
-        <div class="subtext">${item.subtext || ''}</div>
-        <div class="uploader-name">
-            Shared by: <a href="profile.html?id=${item.uploaderId || 'unknown'}" class="profile-link">
-            <strong>${item.uploaderName || 'Anonymous'}</strong></a>
-        </div>
-        <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
-        <div class="like-count">Likes: ${item.likes || 0}</div>
-    </div>
-   <div class="sponsor-box">
-    <picture>
-        <!-- Mobile version (for devices with max width 600px) -->
-        <source srcset="sponsermobil.jpg" media="(max-width: 600px)">
-        <!-- Default (PC version) -->
-        <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
-    </picture>
-</div>
-
-
-`;
-                        const likeButton = newsDiv.querySelector('.like-button');
-                        likeButton.addEventListener('click', () => {
-                            if (!likedPosts[item.key]) {
-                                likedPosts[item.key] = true;
-                                localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
-                                const newLikes = (item.likes || 0) + 1;
-                                update(ref(db, `news/${item.key}`), { likes: newLikes });
-                                likeButton.classList.add('liked');
-                            }
-                        });
-
-                        newsFeed.appendChild(newsDiv);
+                const likeButton = newsDiv.querySelector('.like-button');
+                likeButton.addEventListener('click', () => {
+                    if (!likedPosts[item.key]) {
+                        likedPosts[item.key] = true;
+                        localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+                        const newLikes = (item.likes || 0) + 1;
+                        update(ref(db, `news/${item.key}`), { likes: newLikes });
+                        likeButton.classList.add('liked');
                     }
-                }
-            });
-        };
+                });
 
+                newsFeed.appendChild(newsDiv);
+            }
+        }
+    });
+};
  // Function to open modal and show image
 function openModal(imageUrl) {
     const modal = document.getElementById('image-modal');

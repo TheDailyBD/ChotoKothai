@@ -1,10 +1,11 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post News</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -109,19 +110,117 @@
             width: 30px;
             height: 30px;
         }
+        #user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #user-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        #user-info span {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .welcome-box {
+            background: #fff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .welcome-box input, .welcome-box select, .welcome-box button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            border-radius: 15px;
+            border: 2px solid #ccc;
+        }
+        .welcome-box button {
+            background: #008000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .welcome-box button:hover {
+            background: #005700;
+        }
+#edit-profile {
+    width: 80px; /* Adjust the width as needed */
+    padding: 5px 0;
+    font-size: 14px; /* Optional: Adjust font size */
+}
+
     </style>
 </head>
-<body>
-    <div class="container">
+<body>  <!-- Welcome Overlay for Profile Setup -->
+    <div class="welcome-overlay" id="welcome-overlay">
+        <div class="welcome-box">
+            <h2 >Welcome! Set Up Your Profile </h2>
+            <input type="text" id="welcome-name" placeholder="Enter your name (Max 15 characters)" maxlength="15" required>
+            <select id="welcome-gender" required>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+            <label for="welcome-photo">Upload Photo (optional):
+                </label>
+            <input type="file" id="welcome-photo" accept="image/*">
+
+            <!-- Image Preview and Cropping Section -->
+            <div id="image-preview-container" style="display: none; margin: 10px 0;">
+                <img id="image-preview" style="max-width: 100%; max-height: 300px; border: 1px solid #ccc;">
+            </div>
+            <div id="crop-controls" style="display: none; margin-top: 10px;">
+                <button id="crop-image" style="background: #008000; color: white; padding: 10px; border: none; cursor: pointer;">Crop Image</button>
+            </div>
+
+            <button id="save-profile">Save Profile</button>
+        </div>
+<!-- Profile Picture Preview -->
+<div style="text-align: center; margin-bottom: 10px;">
+    <img id="edit-profile-photo" src="" alt="Profile Photo" 
+         style="width: 80px; height: 80px; border-radius: 50%; display: none; border: 2px solid #ccc;">
+</div>
+
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" id="main-content" style="display: none;">
+        <div id="user-info">
+            <img id="user-photo" src="" alt="User Photo">
+            <span id="user-name"></span>
+            <button id="edit-profile" style="margin-left: 10px; background: #008000; color: white; padding: 5px 0px; border: none; cursor: pointer; border-radius: 5px; width: 80px;">
+    EDIT 
+</button>
+
+        </div>
         <div class="logo">
             <img src="main.png" alt="Logo">
         </div>
         <h1>Post News</h1>
         <form id="news-form">
-            <input type="text" id="name" placeholder="Enter your name" maxlength="100" required>
             <textarea id="headline" placeholder="Enter news headline" maxlength="200" required></textarea>
             <textarea id="subtext" placeholder="Enter subtext (optional)" maxlength="300"></textarea>
-
             <div class="attachment-container">
                 <input type="url" id="image-url" placeholder="Enter image URL (optional)" maxlength="500">
             </div>
@@ -141,17 +240,12 @@
         <a href="news.html" class="nav-circle">
             <img src="news.png" alt="News">
         </a>
-        <a href="profile.html" class="nav-circle">
-            <img src="prof.png" alt="Profile">
-        </a>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
             authDomain: "thedailybd-acdaf.firebaseapp.com",
@@ -163,23 +257,141 @@
             measurementId: "G-EML9VNGL8Z"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Reference to the "news" data in the database
         const newsRef = ref(db, 'news');
-
-        // Handle file upload
         const fileUpload = document.getElementById('file-upload');
         const fileNameDisplay = document.getElementById('file-name');
         const imageUrlInput = document.getElementById('image-url');
+        const welcomeOverlay = document.getElementById('welcome-overlay');
+        const mainContent = document.getElementById('main-content');
+        const saveProfileBtn = document.getElementById('save-profile');
+        const userNameDisplay = document.getElementById('user-name');
+        const userPhotoDisplay = document.getElementById('user-photo');
+        const editProfileBtn = document.getElementById('edit-profile');
+        const photoInput = document.getElementById('welcome-photo');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const cropControls = document.getElementById('crop-controls');
+        const cropImageButton = document.getElementById('crop-image');
+        let cropper;
+
+        const defaultPhotos = {
+            male: 'male.jpg',
+            female: 'female.jpg'
+        };
+
+        // Handle profile photo upload and cropping
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    imagePreview.src = reader.result;
+                    imagePreviewContainer.style.display = 'block';
+                    cropControls.style.display = 'block';
+
+                    // Destroy existing cropper instance if it exists
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    // Initialize Cropper.js
+                    cropper = new Cropper(imagePreview, {
+                        aspectRatio: 1, // Force square crop
+                        viewMode: 2,
+                        background: false,
+                        zoomable: true,
+                        scalable: true,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Crop the image and save it
+        cropImageButton.addEventListener('click', () => {
+            if (cropper) {
+                const croppedCanvas = cropper.getCroppedCanvas({
+                    width: 200,
+                    height: 200,
+                });
+
+                const croppedImageUrl = croppedCanvas.toDataURL('image/png');
+                localStorage.setItem('userPhoto', croppedImageUrl); // Update localStorage
+
+                // Update preview and hide cropping tools
+                imagePreview.src = croppedImageUrl;
+                cropper.destroy();
+                cropControls.style.display = 'none';
+
+                // Update the profile picture in the main content
+                userPhotoDisplay.src = croppedImageUrl;
+            }
+        });
+
+        // Save profile and show main content
+        saveProfileBtn.addEventListener('click', () => {
+            const name = document.getElementById('welcome-name').value;
+            const gender = document.getElementById('welcome-gender').value;
+
+            if (!name || !gender) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Save the photo URL from cropping or default photo
+            const photoUrl = localStorage.getItem('userPhoto') || defaultPhotos[gender];
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userPhoto', photoUrl);
+
+            showMainContent(name, photoUrl);
+        });
+
+        // Edit profile functionality
+        editProfileBtn.addEventListener('click', () => {
+            welcomeOverlay.style.display = 'flex';
+            document.getElementById('welcome-name').value = localStorage.getItem('userName');
+            document.getElementById('welcome-gender').value = '';
+            imagePreviewContainer.style.display = 'none';
+            cropControls.style.display = 'none';
+
+            // Clear the file input to allow re-uploading the same image
+            photoInput.value = '';
+
+            // Destroy existing cropper instance if it exists
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        });
+
+        // Show main content with user details
+        function showMainContent(name, photoUrl) {
+            welcomeOverlay.style.display = 'none';
+            mainContent.style.display = 'block';
+            userNameDisplay.textContent = name;
+            userPhotoDisplay.src = photoUrl;
+        }
+
+        // Load saved profile on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const userName = localStorage.getItem('userName');
+            const userPhoto = localStorage.getItem('userPhoto');
+
+            if (userName && userPhoto) {
+                showMainContent(userName, userPhoto);
+            } else {
+                welcomeOverlay.style.display = 'flex';
+            }
+        });
 
         fileUpload.addEventListener('change', () => {
             const file = fileUpload.files[0];
             if (file) {
                 fileNameDisplay.textContent = file.name;
-                imageUrlInput.value = ""; // Clear URL if file is selected
+                imageUrlInput.value = ""; 
             } else {
                 fileNameDisplay.textContent = "No file selected";
             }
@@ -187,16 +399,14 @@
 
         imageUrlInput.addEventListener('input', () => {
             if (imageUrlInput.value) {
-                fileUpload.value = ""; // Clear file upload if URL is entered
+                fileUpload.value = ""; 
                 fileNameDisplay.textContent = "No file selected";
             }
         });
 
-        // Handle news submission
         document.getElementById('news-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const name = document.getElementById('name').value;
             const headline = document.getElementById('headline').value;
             const subtext = document.getElementById('subtext').value;
             const file = fileUpload.files[0];
@@ -208,32 +418,40 @@
                 const reader = new FileReader();
                 reader.onload = async () => {
                     attachmentUrl = reader.result;
-                    await submitNews(name, headline, subtext, attachmentUrl);
+                    await submitNews(headline, subtext, attachmentUrl);
                 };
                 reader.readAsDataURL(file);
             } else if (imageUrl) {
                 attachmentUrl = imageUrl;
-                await submitNews(name, headline, subtext, attachmentUrl);
+                await submitNews(headline, subtext, attachmentUrl);
             } else {
-                // Proceed without an image
-                await submitNews(name, headline, subtext, attachmentUrl);
+                await submitNews(headline, subtext, attachmentUrl);
             }
         });
 
-        async function submitNews(name, headline, subtext, attachmentUrl) {
-            await push(newsRef, {
+        async function submitNews(headline, subtext, attachmentUrl) {
+            const name = localStorage.getItem('userName') || 'Anonymous';
+            const photo = localStorage.getItem('userPhoto') || ''; // Get user's profile picture
+
+            const newsData = {
                 uploaderName: name,
+                uploaderPhoto: photo, // Include the user's profile picture
                 headline,
                 subtext,
-                imageUrl: attachmentUrl, // This will be an empty string if no image is provided
-                deviceId: localStorage.getItem('deviceId') || 'unknown',
-                date: new Date().toISOString()
-            });
+                imageUrl: attachmentUrl, // Attachments like news images
+                date: new Date().toISOString(),
+                likes: 0 // Initialize likes to 0
+            };
+
+            const db = getDatabase();
+            const newsRef = ref(db, 'news');
+            await push(newsRef, newsData);
 
             alert("News submitted successfully!");
-            document.getElementById('news-form').reset();
-            document.getElementById('file-name').textContent = "No file selected";
+            document.getElementById('news-form').reset(); // Clear the form
         }
+
+
     </script>
 </body>
 </html>
