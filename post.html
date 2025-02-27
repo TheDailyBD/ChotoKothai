@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,6 +22,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
             border-radius: 10px;
+            position: relative;
         }
         .logo {
             margin-bottom: 20px;
@@ -163,56 +165,72 @@
         .welcome-box button:hover {
             background: #005700;
         }
-#edit-profile {
-    width: 80px; /* Adjust the width as needed */
-    padding: 5px 0;
-    font-size: 14px; /* Optional: Adjust font size */
+    #edit-profile {
+    width: 40px;
+    padding: 3px 0;
+    font-size: 08px;
+    margin-left: 20px; /* Add space equivalent to ~5 characters */
 }
-
+        #custom-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(128, 128, 128, 0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+        }
+        /* Points Section */
+        #points-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Times New Roman', serif;
+            font-size: 12px;
+            color: #ffe400 ;
+            font-weight: bold;
+        }
     </style>
 </head>
-<body>  <!-- Welcome Overlay for Profile Setup -->
+<body>
+    <!-- Welcome Overlay for Profile Setup -->
     <div class="welcome-overlay" id="welcome-overlay">
         <div class="welcome-box">
-            <h2 >Welcome! Set Up Your Profile </h2>
+            <h2>Welcome! Set Up Your Profile</h2>
             <input type="text" id="welcome-name" placeholder="Enter your name (Max 15 characters)" maxlength="15" required>
             <select id="welcome-gender" required>
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
             </select>
-            <label for="welcome-photo">Upload Photo (optional):
-                </label>
+            <label for="welcome-photo">Upload Photo (optional):</label>
             <input type="file" id="welcome-photo" accept="image/*">
-
-            <!-- Image Preview and Cropping Section -->
             <div id="image-preview-container" style="display: none; margin: 10px 0;">
                 <img id="image-preview" style="max-width: 100%; max-height: 300px; border: 1px solid #ccc;">
             </div>
             <div id="crop-controls" style="display: none; margin-top: 10px;">
-                <button id="crop-image" style="background: #008000; color: white; padding: 10px; border: none; cursor: pointer;">Crop Image</button>
+                <button id="crop-image">Crop Image</button>
             </div>
-
             <button id="save-profile">Save Profile</button>
         </div>
-<!-- Profile Picture Preview -->
-<div style="text-align: center; margin-bottom: 10px;">
-    <img id="edit-profile-photo" src="" alt="Profile Photo" 
-         style="width: 80px; height: 80px; border-radius: 50%; display: none; border: 2px solid #ccc;">
-</div>
-
-
     </div>
 
     <!-- Main Content -->
     <div class="container" id="main-content" style="display: none;">
+        <!-- Points Section -->
+        <div id="points-section">
+            POINTS: <span id="user-points">0</span>
+        </div>
+
+        <!-- User Info -->
         <div id="user-info">
             <img id="user-photo" src="" alt="User Photo">
             <span id="user-name"></span>
-            <button id="edit-profile" style="margin-left: 10px; background: #008000; color: white; padding: 5px 0px; border: none; cursor: pointer; border-radius: 5px; width: 80px;">
-    EDIT 
-</button>
-
+            <button id="edit-profile">EDIT</button>
         </div>
         <div class="logo">
             <img src="main.png" alt="Logo">
@@ -235,6 +253,9 @@
         </form>
     </div>
 
+    <!-- Custom Notification -->
+    <div id="custom-notification">Message Posted</div>
+
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
         <a href="news.html" class="nav-circle">
@@ -244,7 +265,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
@@ -259,6 +280,32 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // Function to calculate and display user points
+        const calculateUserPoints = (userId) => {
+            const newsRef = ref(db, 'news');
+            onValue(newsRef, (snapshot) => {
+                const news = snapshot.val();
+                let totalPoints = 0;
+
+                for (const key in news) {
+                    if (news[key].uploaderName === userId) {
+                        totalPoints += news[key].likes || 0;
+                    }
+                }
+
+                // Update the points display
+                document.getElementById('user-points').textContent = totalPoints;
+            });
+        };
+
+        // Load user points when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const userName = localStorage.getItem('userName');
+            if (userName) {
+                calculateUserPoints(userName);
+            }
+        });
 
         const newsRef = ref(db, 'news');
         const fileUpload = document.getElementById('file-upload');
@@ -391,9 +438,9 @@
             const file = fileUpload.files[0];
             if (file) {
                 fileNameDisplay.textContent = file.name;
-                imageUrlInput.value = ""; 
+                imageUrlInput.value = "";
             } else {
-                fileNameDisplay.textContent = "No file selected";
+                fileNameDisplay.textContent
             }
         });
 
@@ -429,29 +476,55 @@
             }
         });
 
-        async function submitNews(headline, subtext, attachmentUrl) {
-            const name = localStorage.getItem('userName') || 'Anonymous';
-            const photo = localStorage.getItem('userPhoto') || ''; // Get user's profile picture
+    async function submitNews(headline, subtext, attachmentUrl) {
+    const name = localStorage.getItem('userName') || 'Anonymous';
+    const photo = localStorage.getItem('userPhoto') || ''; // Get user's profile picture
 
-            const newsData = {
-                uploaderName: name,
-                uploaderPhoto: photo, // Include the user's profile picture
-                headline,
-                subtext,
-                imageUrl: attachmentUrl, // Attachments like news images
-                date: new Date().toISOString(),
-                likes: 0 // Initialize likes to 0
-            };
+    const newsData = {
+        uploaderName: name,
+        uploaderPhoto: photo, // Include the user's profile picture
+        headline,
+        subtext,
+        imageUrl: attachmentUrl, // Attachments like news images
+        date: new Date().toISOString(),
+        likes: 0 // Initialize likes to 0
+    };
 
-            const db = getDatabase();
-            const newsRef = ref(db, 'news');
-            await push(newsRef, newsData);
+    const db = getDatabase();
+    const newsRef = ref(db, 'news');
 
-            alert("News submitted successfully!");
-            document.getElementById('news-form').reset(); // Clear the form
-        }
+    // Disable the submit button
+    const submitButton = document.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Posting...';
 
+    try {
+        await push(newsRef, newsData);
 
+        // Show custom notification
+        const notification = document.getElementById('custom-notification');
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000); // Hide after 3 seconds
+
+        // Clear the form
+        document.getElementById('news-form').reset();
+    } catch (error) {
+        console.error("Error submitting news:", error);
+        // Show custom notification for error
+        const notification = document.getElementById('custom-notification');
+        notification.textContent = "Failed to submit news. Please try again.";
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000); // Hide after 3 seconds
+    } finally {
+        // Re-enable the submit button
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit News';
+    }
+}
     </script>
 </body>
 </html>
