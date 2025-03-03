@@ -197,7 +197,7 @@
     </style>
 </head>
 <body>
-    <!-- Welcome Overlay for Profile Setup -->
+<!-- Welcome Overlay for Profile Setup -->
     <div class="welcome-overlay" id="welcome-overlay">
         <div class="welcome-box">
             <h2>Welcome! Set Up Your Profile</h2>
@@ -265,7 +265,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
@@ -280,6 +281,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app);
 
         // Function to calculate and display user points
         const calculateUserPoints = (userId) => {
@@ -289,7 +291,7 @@
                 let totalPoints = 0;
 
                 for (const key in news) {
-                    if (news[key].uploaderName === userId) {
+                    if (news[key].uploaderId === userId) {
                         totalPoints += news[key].likes || 0;
                     }
                 }
@@ -301,9 +303,9 @@
 
         // Load user points when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            const userName = localStorage.getItem('userName');
-            if (userName) {
-                calculateUserPoints(userName);
+            const user = auth.currentUser;
+            if (user) {
+                calculateUserPoints(user.uid);
             }
         });
 
@@ -476,55 +478,93 @@
             }
         });
 
-    async function submitNews(headline, subtext, attachmentUrl) {
-    const name = localStorage.getItem('userName') || 'Anonymous';
-    const photo = localStorage.getItem('userPhoto') || ''; // Get user's profile picture
+        async function submitNews(headline, subtext, attachmentUrl) {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('You must be logged in to post news.');
+                return;
+            }
 
-    const newsData = {
-        uploaderName: name,
-        uploaderPhoto: photo, // Include the user's profile picture
-        headline,
-        subtext,
-        imageUrl: attachmentUrl, // Attachments like news images
-        date: new Date().toISOString(),
-        likes: 0 // Initialize likes to 0
-    };
+            const userId = user.uid;
+            const name = localStorage.getItem('userName') || 'Anonymous';
+            const photo = localStorage.getItem('userPhoto') || ''; // Get user's profile picture
 
-    const db = getDatabase();
-    const newsRef = ref(db, 'news');
+            // Check post limit
+            const postLimitRef = ref(db, `users/${userId}/postCount`);
+            const postLimitSnapshot = await get(postLimitRef);
+            const postCount = postLimitSnapshot.val() || 0;
 
-    // Disable the submit button
-    const submitButton = document.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.textContent = 'Posting...';
+            if (postCount >= 3) {
+                alert('You have reached the maximum number of posts for this week.');
+                return;
+            }
 
-    try {
-        await push(newsRef, newsData);
+            const newsData = {
+                uploaderId: userId,
+                uploaderName: name,
+                uploaderPhoto: photo, // Include the user's profile picture
+                headline,
+                subtext,
+                imageUrl: attachmentUrl, // Attachments like news images
+                date: new Date().toISOString(),
+                likes: 0 // Initialize likes to 0
+            };
 
-        // Show custom notification
-        const notification = document.getElementById('custom-notification');
-        notification.style.display = 'block';
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000); // Hide after 3 seconds
+            const db = getDatabase();
+            const newsRef = ref(db, 'news');
 
-        // Clear the form
-        document.getElementById('news-form').reset();
-    } catch (error) {
-        console.error("Error submitting news:", error);
-        // Show custom notification for error
-        const notification = document.getElementById('custom-notification');
-        notification.textContent = "Failed to submit news. Please try again.";
-        notification.style.display = 'block';
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000); // Hide after 3 seconds
-    } finally {
-        // Re-enable the submit button
-        submitButton.disabled = false;
-        submitButton.textContent = 'Submit News';
-    }
-}
+            // Disable the submit button
+            const submitButton = document.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Posting...';
+
+            try {
+                await push(newsRef, newsData);
+
+                // Increment post count
+                await set(postLimitRef, postCount + 1);
+
+                // Show custom notification
+                const notification = document.getElementById('custom-notification');
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000); // Hide after 3 seconds
+
+                // Clear the form
+                document.getElementById('news-form').reset();
+            } catch (error) {
+                console.error("Error submitting news:", error);
+                // Show custom notification for error
+                const notification = document.getElementById('custom-notification');
+                notification.textContent = "Failed to submit news. Please try again.";
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000); // Hide after 3 seconds
+            } finally {
+                // Re-enable the submit button
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit News';
+            }
+        }
+
+        // Sign in anonymously
+        signInAnonymously(auth).then(() => {
+            console.log('Signed in anonymously');
+        }).catch((error) => {
+            console.error('Error signing in anonymously:', error);
+        });
+
+        // Listen for auth state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('User is signed in:', user.uid);
+            } else {
+                console.log('User is signed out');
+            }
+        });
     </script>
+
 </body>
 </html>
