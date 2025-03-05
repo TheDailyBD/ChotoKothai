@@ -165,12 +165,12 @@
         .welcome-box button:hover {
             background: #005700;
         }
-    #edit-profile {
-    width: 40px;
-    padding: 3px 0;
-    font-size: 08px;
-    margin-left: 20px; /* Add space equivalent to ~5 characters */
-}
+        #edit-profile {
+            width: 40px;
+            padding: 3px 0;
+            font-size: 08px;
+            margin-left: 20px;
+        }
         #custom-notification {
             position: fixed;
             bottom: 20px;
@@ -190,14 +190,27 @@
             top: 20px;
             right: 20px;
             font-family: 'Times New Roman', serif;
-            font-size: 12px;
-            color: #ffe400 ;
+            font-size: 20px;
+            color: #f90000;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        #points-section img {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+        /* Hide image URL input on mobile */
+        @media (max-width: 600px) {
+            #image-url {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-<!-- Welcome Overlay for Profile Setup -->
+    <!-- Welcome Overlay for Profile Setup -->
     <div class="welcome-overlay" id="welcome-overlay">
         <div class="welcome-box">
             <h2>Welcome! Set Up Your Profile</h2>
@@ -223,7 +236,8 @@
     <div class="container" id="main-content" style="display: none;">
         <!-- Points Section -->
         <div id="points-section">
-            POINTS: <span id="user-points">0</span>
+            <img src="points.png" alt="Points">
+             <span id="user-points">0</span>
         </div>
 
         <!-- User Info -->
@@ -265,7 +279,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
         const firebaseConfig = {
@@ -442,7 +456,7 @@
                 fileNameDisplay.textContent = file.name;
                 imageUrlInput.value = "";
             } else {
-                fileNameDisplay.textContent
+                fileNameDisplay.textContent = "No file selected";
             }
         });
 
@@ -450,6 +464,15 @@
             if (imageUrlInput.value) {
                 fileUpload.value = ""; 
                 fileNameDisplay.textContent = "No file selected";
+            }
+        });
+
+        // Validate image URL input
+        imageUrlInput.addEventListener('paste', (e) => {
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            if (!pastedText.match(/\.(jpeg|jpg|png|gif)$/i)) {
+                e.preventDefault();
+                alert('Invalid image URL. Only image links are allowed.');
             }
         });
 
@@ -564,7 +587,25 @@
                 console.log('User is signed out');
             }
         });
-    </script>
 
+        // Automatically delete posts older than 72 hours
+        const deleteOldPosts = () => {
+            const newsRef = ref(db, 'news');
+            onValue(newsRef, (snapshot) => {
+                const news = snapshot.val();
+                const now = new Date().getTime();
+
+                for (const key in news) {
+                    const postDate = new Date(news[key].date).getTime();
+                    if (now - postDate > 72 * 60 * 60 * 1000) { // 72 hours
+                        remove(ref(db, `news/${key}`));
+                    }
+                }
+            });
+        };
+
+        // Run the cleanup function periodically
+        setInterval(deleteOldPosts, 60 * 60 * 1000); // Check every hour
+    </script>
 </body>
 </html>
