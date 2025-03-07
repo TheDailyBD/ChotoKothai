@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <style>
+        /* Your existing CSS styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -184,28 +185,48 @@
             z-index: 1000;
             display: none;
         }
-        /* Points Section */
         #points-section {
             position: absolute;
             top: 20px;
             right: 20px;
             font-family: 'Times New Roman', serif;
-            font-size: 20px;
-            color: #f90000;
+            font-size: 18px;
+            color: #f10000;
             font-weight: bold;
-            display: flex;
-            align-items: center;
         }
         #points-section img {
             width: 20px;
             height: 20px;
+            vertical-align: middle;
             margin-right: 5px;
         }
-        /* Hide image URL input on mobile */
-        @media (max-width: 600px) {
-            #image-url {
-                display: none;
-            }
+        #paste-notification {
+            position: fixed;
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            transform: translate(-50%, -50%); /* Ensure exact centering */
+            background-color: rgba(255, 0, 0, 0.8); /* Semi-transparent red background */
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
+        #weekly-limit-notification {
+            position: fixed;
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            transform: translate(-50%, -50%); /* Ensure exact centering */
+            background-color: rgba(255, 0, 0, 0.8); /* Semi-transparent red background */
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            text-align: center;
         }
     </style>
 </head>
@@ -236,8 +257,7 @@
     <div class="container" id="main-content" style="display: none;">
         <!-- Points Section -->
         <div id="points-section">
-            <img src="points.png" alt="Points">
-             <span id="user-points">0</span>
+            <img src="points.png" alt="Points"> <span id="user-points">0</span>
         </div>
 
         <!-- User Info -->
@@ -253,7 +273,7 @@
         <form id="news-form">
             <textarea id="headline" placeholder="Enter news headline" maxlength="200" required></textarea>
             <textarea id="subtext" placeholder="Enter subtext (optional)" maxlength="300"></textarea>
-            <div class="attachment-container">
+            <div class="attachment-container" id="image-url-container">
                 <input type="url" id="image-url" placeholder="Enter image URL (optional)" maxlength="500">
             </div>
             <div class="attachment-container">
@@ -270,6 +290,12 @@
     <!-- Custom Notification -->
     <div id="custom-notification">Message Posted</div>
 
+    <!-- Centered Notification for Invalid Paste -->
+    <div id="paste-notification">Only "Copy Image Address" links ending with .png are allowed.</div>
+
+    <!-- Centered Notification for Weekly Post Limit -->
+    <div id="weekly-limit-notification">You have reached the maximum limit of 5 posts per week.</div>
+
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
         <a href="news.html" class="nav-circle">
@@ -279,8 +305,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
@@ -295,7 +320,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const auth = getAuth(app);
 
         // Function to calculate and display user points
         const calculateUserPoints = (userId) => {
@@ -305,7 +329,7 @@
                 let totalPoints = 0;
 
                 for (const key in news) {
-                    if (news[key].uploaderId === userId) {
+                    if (news[key].uploaderName === userId) {
                         totalPoints += news[key].likes || 0;
                     }
                 }
@@ -317,9 +341,9 @@
 
         // Load user points when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            const user = auth.currentUser;
-            if (user) {
-                calculateUserPoints(user.uid);
+            const userName = localStorage.getItem('userName');
+            if (userName) {
+                calculateUserPoints(userName);
             }
         });
 
@@ -338,6 +362,8 @@
         const imagePreview = document.getElementById('image-preview');
         const cropControls = document.getElementById('crop-controls');
         const cropImageButton = document.getElementById('crop-image');
+        const pasteNotification = document.getElementById('paste-notification');
+        const weeklyLimitNotification = document.getElementById('weekly-limit-notification');
         let cropper;
 
         const defaultPhotos = {
@@ -462,17 +488,8 @@
 
         imageUrlInput.addEventListener('input', () => {
             if (imageUrlInput.value) {
-                fileUpload.value = ""; 
+                fileUpload.value = "";
                 fileNameDisplay.textContent = "No file selected";
-            }
-        });
-
-        // Validate image URL input
-        imageUrlInput.addEventListener('paste', (e) => {
-            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-            if (!pastedText.match(/\.(jpeg|jpg|png|gif)$/i)) {
-                e.preventDefault();
-                alert('Invalid image URL. Only image links are allowed.');
             }
         });
 
@@ -502,35 +519,37 @@
         });
 
         async function submitNews(headline, subtext, attachmentUrl) {
-            const user = auth.currentUser;
-            if (!user) {
-                alert('You must be logged in to post news.');
-                return;
-            }
-
-            const userId = user.uid;
             const name = localStorage.getItem('userName') || 'Anonymous';
-            const photo = localStorage.getItem('userPhoto') || ''; // Get user's profile picture
+            const photo = localStorage.getItem('userPhoto') || '';
 
-            // Check post limit
-            const postLimitRef = ref(db, `users/${userId}/postCount`);
-            const postLimitSnapshot = await get(postLimitRef);
-            const postCount = postLimitSnapshot.val() || 0;
+            // Get the current week number
+            const now = new Date();
+            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+            const weekNumber = Math.floor(startOfWeek.getTime() / (7 * 24 * 60 * 60 * 1000));
 
-            if (postCount >= 3) {
-                alert('You have reached the maximum number of posts for this week.');
-                return;
+            // Get the user's post count for the current week
+            const userPostCountKey = `postCount_${weekNumber}`;
+            let postCount = parseInt(localStorage.getItem(userPostCountKey)) || 0;
+
+            // Check if the user has already posted 5 times this week
+            if (postCount >= 5) {
+                // Show the centered weekly post limit notification
+                const weeklyLimitNotification = document.getElementById('weekly-limit-notification');
+                weeklyLimitNotification.style.display = 'block';
+                setTimeout(() => {
+                    weeklyLimitNotification.style.display = 'none';
+                }, 3000); // Hide after 3 seconds
+                return; // Stop further execution
             }
 
             const newsData = {
-                uploaderId: userId,
                 uploaderName: name,
-                uploaderPhoto: photo, // Include the user's profile picture
+                uploaderPhoto: photo,
                 headline,
                 subtext,
-                imageUrl: attachmentUrl, // Attachments like news images
+                imageUrl: attachmentUrl,
                 date: new Date().toISOString(),
-                likes: 0 // Initialize likes to 0
+                likes: 0
             };
 
             const db = getDatabase();
@@ -544,27 +563,27 @@
             try {
                 await push(newsRef, newsData);
 
-                // Increment post count
-                await set(postLimitRef, postCount + 1);
+                // Increment the user's post count for the current week
+                postCount++;
+                localStorage.setItem(userPostCountKey, postCount);
 
                 // Show custom notification
                 const notification = document.getElementById('custom-notification');
                 notification.style.display = 'block';
                 setTimeout(() => {
                     notification.style.display = 'none';
-                }, 3000); // Hide after 3 seconds
+                }, 3000);
 
                 // Clear the form
                 document.getElementById('news-form').reset();
             } catch (error) {
                 console.error("Error submitting news:", error);
-                // Show custom notification for error
                 const notification = document.getElementById('custom-notification');
                 notification.textContent = "Failed to submit news. Please try again.";
                 notification.style.display = 'block';
                 setTimeout(() => {
                     notification.style.display = 'none';
-                }, 3000); // Hide after 3 seconds
+                }, 3000);
             } finally {
                 // Re-enable the submit button
                 submitButton.disabled = false;
@@ -572,24 +591,27 @@
             }
         }
 
-        // Sign in anonymously
-        signInAnonymously(auth).then(() => {
-            console.log('Signed in anonymously');
-        }).catch((error) => {
-            console.error('Error signing in anonymously:', error);
-        });
+        // Hide image URL input on mobile devices
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.getElementById('image-url-container').style.display = 'none';
+        }
 
-        // Listen for auth state changes
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log('User is signed in:', user.uid);
-            } else {
-                console.log('User is signed out');
+        // Restrict pasting in image URL input
+        imageUrlInput.addEventListener('paste', (e) => {
+            const pasteText = (e.clipboardData || window.clipboardData).getData('text');
+            if (!pasteText.startsWith('http') || !pasteText.endsWith('.png')) {
+                e.preventDefault();
+                // Show the centered notification box
+                pasteNotification.style.display = 'block';
+                setTimeout(() => {
+                    pasteNotification.style.display = 'none';
+                }, 3000);
             }
         });
 
-        // Automatically delete posts older than 72 hours
-        const deleteOldPosts = () => {
+        // Automatically remove posts after 72 hours
+        const removeOldPosts = () => {
             const newsRef = ref(db, 'news');
             onValue(newsRef, (snapshot) => {
                 const news = snapshot.val();
@@ -597,15 +619,15 @@
 
                 for (const key in news) {
                     const postDate = new Date(news[key].date).getTime();
-                    if (now - postDate > 72 * 60 * 60 * 1000) { // 72 hours
+                    if (now - postDate > 72 * 60 * 60 * 1000) {
                         remove(ref(db, `news/${key}`));
                     }
                 }
             });
         };
 
-        // Run the cleanup function periodically
-        setInterval(deleteOldPosts, 60 * 60 * 1000); // Check every hour
+        // Run the function to remove old posts periodically
+        setInterval(removeOldPosts, 60 * 60 * 1000); // Check every hour
     </script>
 </body>
 </html>
