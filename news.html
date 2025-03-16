@@ -18,6 +18,7 @@
             background-color: #f9f9f9;
             line-height: 1.4;
         }
+
         .header {
             position: fixed;
             top: 0;
@@ -33,15 +34,18 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             font-family: Arial, sans-serif;
         }
+
         .header img {
             width: 150px;
             height: 40px;
             margin-right: 10px;
         }
+
         .nav {
             display: flex;
             margin-left: auto;
         }
+
         .nav a {
             color: black;
             text-decoration: none;
@@ -49,17 +53,22 @@
             font-size: 16px;
             border-left: 1px solid #ddd;
         }
+
         .nav a:first-child {
             border-left: none;
         }
+
         .nav a:hover {
             background-color: #f1f1f1;
         }
+
         .container {
             margin: 80px auto;
             max-width: 800px;
             padding: 10px;
         }
+
+        /* News Box Styles */
         .news-item {
             background: #f5f4ef;
             width: 100%;
@@ -73,6 +82,8 @@
             color: white;
             border: 0.1px solid black;
         }
+
+        /* Image Box */
         .image-box {
             position: relative;
             width: 100%;
@@ -82,9 +93,12 @@
             background-position: center;
             cursor: pointer;
         }
+
+        /* News Content */
         .news-content {
             padding: 15px;
         }
+
         .label {
             font-family: 'Gotham', sans-serif;
             font-weight: bold;
@@ -93,6 +107,7 @@
             margin-bottom: 8px;
             text-transform: uppercase;
         }
+
         .headline {
             font-family: 'Alegreya', serif;
             font-weight: bold;
@@ -103,19 +118,24 @@
             text-transform: uppercase;
             text-align: center;
         }
+
         .subtext {
             font-size: 10px;
             color: #000;
             font-family: 'Gotham', sans-serif;
             text-align: center;
         }
+
+        /* Uploader Name */
         .uploader-name {
             font-family: 'Gotham', sans-serif;
             font-size: 11px;
             color: #000;
             margin-top: 15px;
         }
-        .like-button, .report-button {
+
+        /* Like Button */
+        .like-button {
             font-family: 'Gotham', sans-serif;
             margin-top: 5px;
             padding: 5px 10px;
@@ -125,15 +145,34 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
         .like-button.liked {
             background-color: #ff0000;
         }
+
         .like-count {
             font-family: 'Gotham', sans-serif;
             margin-top: 5px;
             font-size: 10px;
             color: #000;
         }
+
+        .report-button {
+            font-family: 'Gotham', sans-serif;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .report-button.reported {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
         .sponsor-box {
             height: 40px;
             background-size: cover;
@@ -148,6 +187,8 @@
             align-items: center;
             margin-top: 0px;
         }
+
+        /* Taskbar */
         .taskbar {
             position: fixed;
             bottom: 0;
@@ -160,6 +201,7 @@
             justify-content: center;
             align-items: center;
         }
+
         .taskbar .circle {
             width: 60px;
             height: 60px;
@@ -172,91 +214,64 @@
             text-decoration: none;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
         .taskbar .circle img {
             width: 30px;
             height: 30px;
         }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+
+        /* Report Modal Styles */
+        #report-modal {
             display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-        .modal-content {
-            background: #fff;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
             padding: 20px;
             border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
         }
-        .modal-content h3 {
-            margin-bottom: 15px;
-        }
-        .modal-content select, .modal-content textarea {
+
+        #report-modal textarea {
             width: 100%;
-            padding: 10px;
             margin-bottom: 10px;
-            border: 1px solid #ccc;
+            padding: 10px;
+            border: 1px solid #ddd;
             border-radius: 4px;
         }
-        .modal-content button {
+
+        #report-modal button {
             padding: 10px 20px;
             background-color: #000;
-            color: #fff;
+            color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
-        .modal-content button:hover {
+
+        #report-modal button:hover {
             background-color: #333;
-        }
-        .close-button {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 50%;
-        }
-        .close-button:hover {
-            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
+    <!-- Report Reason Modal -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeReportModal()">&times;</span>
+            <h3>Why are you reporting this post?</h3>
+            <textarea id="report-reason" placeholder="Enter your reason..." rows="4"></textarea>
+            <button id="submit-report">Submit</button>
+        </div>
+    </div>
+
     <!-- Image Modal for Fullscreen View -->
     <div id="image-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
             <img id="modal-image" src="" alt="Zoomed Image">
-        </div>
-    </div>
-
-    <!-- Report Reason Modal -->
-    <div id="report-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeReportModal()">&times;</span>
-            <h3>Report Post</h3>
-            <select id="report-reason">
-                <option value="spam">Spam</option>
-                <option value="hate_speech">Hate Speech</option>
-                <option value="violence">Violence or Harmful Content</option>
-                <option value="misinformation">Misinformation</option>
-                <option value="other">Other</option>
-            </select>
-            <textarea id="custom-reason" placeholder="Enter additional details (optional)" rows="3"></textarea>
-            <button onclick="submitReport()">Submit Report</button>
         </div>
     </div>
 
@@ -274,156 +289,173 @@
         </a>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
-            authDomain: "thedailybd-acdaf.firebaseapp.com",
-            databaseURL: "https://thedailybd-acdaf-default-rtdb.firebaseio.com",
-            projectId: "thedailybd-acdaf",
-            storageBucket: "thedailybd-acdaf.appspot.com",
-            messagingSenderId: "582082023966",
-            appId: "1:582082023966:web:cdee6a8c28e4513761140f",
-            measurementId: "G-EML9VNGL8Z"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
+        authDomain: "thedailybd-acdaf.firebaseapp.com",
+        databaseURL: "https://thedailybd-acdaf-default-rtdb.firebaseio.com",
+        projectId: "thedailybd-acdaf",
+        storageBucket: "thedailybd-acdaf.appspot.com",
+        messagingSenderId: "582082023966",
+        appId: "1:582082023966:web:cdee6a8c28e4513761140f",
+        measurementId: "G-EML9VNGL8Z"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        let currentPostKey = null; // Store the key of the post being reported
+    let currentReportKey = null; // Track the post being reported
 
-        const loadNews = () => {
-            const newsRef = ref(db, 'news');
-            const newsFeed = document.getElementById('news-feed');
+    const loadNews = () => {
+        const newsRef = ref(db, 'news');
+        const newsFeed = document.getElementById('news-feed');
+        newsFeed.innerHTML = '';
+
+        const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
+        const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {}; // Track reported posts
+        const currentTime = Date.now();
+        const currentUser = localStorage.getItem('userName'); // Get the current user's name
+
+        onValue(newsRef, (snapshot) => {
             newsFeed.innerHTML = '';
+            const news = snapshot.val();
 
-            const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
-            const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {};
-            const currentTime = Date.now();
-            const currentUser = localStorage.getItem('userName'); // Get the current user's name
-
-            onValue(newsRef, (snapshot) => {
-                newsFeed.innerHTML = '';
-                const news = snapshot.val();
-
-                // Convert news object to array and sort
-                const sortedNews = Object.keys(news).map(key => ({
-                    ...news[key],
-                    key
-                })).sort((a, b) => {
-                    // Sort by current user's posts first, then by date
-                    if (a.uploaderName === currentUser && b.uploaderName !== currentUser) return -1;
-                    if (a.uploaderName !== currentUser && b.uploaderName === currentUser) return 1;
-                    return new Date(b.date) - new Date(a.date);
-                });
-
-                for (const item of sortedNews) {
-                    const newsDate = new Date(item.date).getTime();
-
-                    if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
-                        const newsDiv = document.createElement('div');
-                        newsDiv.className = 'news-item';
-                        newsDiv.style.backgroundImage = "url('1.JPG')";
-                        newsDiv.style.backgroundSize = "cover";
-                        newsDiv.style.backgroundPosition = "center";
-                        newsDiv.style.backgroundRepeat = "no-repeat";
-
-                        const imageBox = item.imageUrl 
-                            ? `<div class="image-box" style="background-image: url('${item.imageUrl}');" onclick="openModal('${item.imageUrl}')"></div>` 
-                            : '';
-
-                        newsDiv.innerHTML = `
-                            ${imageBox}
-                            <div class="news-content">
-                                <span class="label">${new Date(item.date).toLocaleDateString()}</span>
-                                <div class="headline">${item.headline}</div>
-                                <div class="subtext">${item.subtext || ''}</div>
-                                <div class="uploader-name">
-                                    <img src="${item.uploaderPhoto}" alt="User DP" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                    Shared by: 
-                                    <strong>${item.uploaderName || 'Anonymous'}</strong></a>
-                                </div>
-                                <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
-                                <button class="report-button" onclick="openReportModal('${item.key}')">Report</button>
-                                <div class="like-count">Likes: ${item.likes || 0}</div>
-                            </div>
-                            <div class="sponsor-box">
-                                <picture>
-                                    <source srcset="sponsermobil.jpg" media="(max-width: 600px)">
-                                    <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
-                                </picture>
-                            </div>
-                        `;
-
-                        const likeButton = newsDiv.querySelector('.like-button');
-                        likeButton.addEventListener('click', () => {
-                            if (!likedPosts[item.key]) {
-                                likedPosts[item.key] = true;
-                                localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
-                                const newLikes = (item.likes || 0) + 1;
-                                update(ref(db, `news/${item.key}`), { likes: newLikes });
-                                likeButton.classList.add('liked');
-                            }
-                        });
-
-                        newsFeed.appendChild(newsDiv);
-                    }
-                }
+            // Convert news object to array and sort
+            const sortedNews = Object.keys(news).map(key => ({
+                ...news[key],
+                key
+            })).sort((a, b) => {
+                // Sort by current user's posts first, then by date
+                if (a.uploaderName === currentUser && b.uploaderName !== currentUser) return -1;
+                if (a.uploaderName !== currentUser && b.uploaderName === currentUser) return 1;
+                return new Date(b.date) - new Date(a.date);
             });
+
+            for (const item of sortedNews) {
+                const newsDate = new Date(item.date).getTime();
+
+                if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
+                    const newsDiv = document.createElement('div');
+                    newsDiv.className = 'news-item';
+                    newsDiv.style.backgroundImage = "url('1.JPG')";
+                    newsDiv.style.backgroundSize = "cover";
+                    newsDiv.style.backgroundPosition = "center";
+                    newsDiv.style.backgroundRepeat = "no-repeat";
+
+                    const imageBox = item.imageUrl 
+                        ? `<div class="image-box" style="background-image: url('${item.imageUrl}');" onclick="openModal('${item.imageUrl}')"></div>` 
+                        : '';
+
+                    newsDiv.innerHTML = `
+                        ${imageBox}
+                        <div class="news-content">
+                            <span class="label">${new Date(item.date).toLocaleDateString()}</span>
+                            <div class="headline">${item.headline}</div>
+                            <div class="subtext">${item.subtext || ''}</div>
+                            <div class="uploader-name">
+                                <img src="${item.uploaderPhoto}" alt="User DP" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                Shared by: 
+                                <strong>${item.uploaderName || 'Anonymous'}</strong></a>
+                            </div>
+                            <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
+                            <button class="report-button ${reportedPosts[item.key] ? 'reported' : ''}" ${reportedPosts[item.key] ? 'disabled' : ''}>Report</button>
+                            <div class="like-count">Likes: ${item.likes || 0}</div>
+                        </div>
+                        <div class="sponsor-box">
+                            <picture>
+                                <source srcset="sponsermobil.jpg" media="(max-width: 600px)">
+                                <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
+                            </picture>
+                        </div>
+                    `;
+
+                    const likeButton = newsDiv.querySelector('.like-button');
+                    likeButton.addEventListener('click', () => {
+                        if (!likedPosts[item.key]) {
+                            likedPosts[item.key] = true;
+                            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+                            const newLikes = (item.likes || 0) + 1;
+                            update(ref(db, `news/${item.key}`), { likes: newLikes });
+                            likeButton.classList.add('liked');
+                        }
+                    });
+
+                    const reportButton = newsDiv.querySelector('.report-button');
+                    reportButton.addEventListener('click', () => {
+                        if (!reportedPosts[item.key]) {
+                            currentReportKey = item.key; // Set the current post key
+                            openReportModal(); // Open the report modal
+                        } else {
+                            alert('You have already reported this post.');
+                        }
+                    });
+
+                    newsFeed.appendChild(newsDiv);
+                }
+            }
+        });
+    };
+
+    // Function to open report modal
+    function openReportModal() {
+        const modal = document.getElementById('report-modal');
+        modal.style.display = "flex";
+    }
+
+    // Function to close report modal
+    function closeReportModal() {
+        const modal = document.getElementById('report-modal');
+        modal.style.display = "none";
+    }
+
+    // Function to handle report submission
+    document.getElementById('submit-report').addEventListener('click', () => {
+        const reason = document.getElementById('report-reason').value;
+        if (reason.trim() === "") {
+            alert("Please enter a reason for reporting.");
+            return;
+        }
+
+        const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {};
+        reportedPosts[currentReportKey] = true;
+        localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
+
+        const reportData = {
+            reason: reason,
+            name: localStorage.getItem('userName'),
+            photo: localStorage.getItem('userPhoto'),
+            timestamp: Date.now()
         };
 
-        // Function to open modal and show image
-        function openModal(imageUrl) {
-            const modal = document.getElementById('image-modal');
-            const modalImage = document.getElementById('modal-image');
-            modalImage.src = imageUrl;
-            modal.style.display = "flex";
-        }
-
-        // Function to close modal
-        function closeModal() {
-            document.getElementById('image-modal').style.display = "none";
-        }
-
-        // Function to open report modal
-        function openReportModal(postKey) {
-            currentPostKey = postKey;
-            document.getElementById('report-modal').style.display = "flex";
-        }
-
-        // Function to close report modal
-        function closeReportModal() {
-            document.getElementById('report-modal').style.display = "none";
-        }
-
-        // Function to submit report
-        function submitReport() {
-            const reason = document.getElementById('report-reason').value;
-            const customReason = document.getElementById('custom-reason').value;
-            const finalReason = customReason ? `${reason}: ${customReason}` : reason;
-
-            if (!currentPostKey) return;
-
-            // Update the post in Firebase with the report
-            update(ref(db, `news/${currentPostKey}`), {
-                reported: true,
-                reportReason: finalReason,
-                reportedBy: localStorage.getItem('userName') || 'Anonymous'
+        update(ref(db, `news/${currentReportKey}/reportedBy/${localStorage.getItem('userId')}`), reportData)
+            .then(() => {
+                alert('Post reported successfully!');
+                closeReportModal();
+                loadNews(); // Refresh the news feed to update the UI
+            })
+            .catch((error) => {
+                console.error("Error reporting post: ", error);
             });
+    });
 
-            // Mark the post as reported in localStorage
-            const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {};
-            reportedPosts[currentPostKey] = true;
-            localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
+    // Function to open modal and show image
+    function openModal(imageUrl) {
+        const modal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        modalImage.src = imageUrl;
+        modal.style.display = "flex";
+    }
 
-            alert('Post reported successfully!');
-            closeReportModal();
-        }
+    // Function to close modal
+    function closeModal() {
+        document.getElementById('image-modal').style.display = "none";
+    }
 
-        // Load news when the page loads
-        window.onload = loadNews;
-    </script>
+    // Load news when the page loads
+    window.onload = loadNews;
+</script>
 </body>
 </html>
