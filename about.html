@@ -5,27 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chotokothai - About Us</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f9f9f9;
-            line-height: 1.6;
+            line-height: 1.8;
+            color: #333;
         }
 
-        .header {
+   .header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             background: #FFFFFF;
             color: black;
+            padding: 10px 20px;
             display: flex;
+            justify-content: flex-start;
             align-items: center;
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 10px 20px;
+            font-family: Arial, sans-serif;
         }
 
         .header img {
@@ -35,8 +39,8 @@
         }
 
         .nav {
-            margin-left: auto;
             display: flex;
+            margin-left: auto;
         }
 
         .nav a {
@@ -55,25 +59,56 @@
             background-color: #f1f1f1;
         }
 
-        /* Hide Home Button on Smaller Screens */
+
         @media (max-width: 768px) {
-            .nav a.home-link {
-                display: none;
+            .nav a {
+                font-size: 16px;
+                padding: 12px 15px;
             }
         }
 
         .container {
-            max-width: 800px;
-            margin: 60px auto 20px;
+            max-width: 900px;
+            margin: 80px auto 30px;
             background: #fff;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .about-us {
-            font-size: 16px;
-            color: #333;
+            font-size: 18px;
+            font-weight: 400;
             padding: 20px;
+        }
+
+        .about-us h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .about-us ul {
+            padding-left: 20px;
+        }
+
+        .about-us ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .footer img {
+            width: 22px;
+            height: 22px;
+            vertical-align: middle;
+            margin-right: 12px;
         }
     </style>
 </head>
@@ -85,12 +120,31 @@
         </div>
     </div>
 
-<div class="container">
-    <div class="about-us">
-        <h2>About Us</h2>
-        <p>Chotokothai is your platform to turn everyday moments into powerful stories. Here, everyone is a journalist—sharing updates, breaking news, and unveiling truths as they happen. Whether it’s local happenings or global events, your voice has power here. Founded by Mohammed Famid, Chotokothai is built on the belief that journalism belongs to everyone. Join us and help shape the narrative, spark conversations, and make a difference.</p>
+    <div class="container">
+        <div class="about-us">
+            <h2>About Us</h2>
+            <p><strong>Chotokothai</strong> is more than just a news-sharing platform—it’s a movement that empowers individuals to become citizen journalists. We believe that the truth should not be controlled by a select few but should be freely shared by those who witness it firsthand.</p>
+            
+            <p>Founded by <strong>Mohammed Famid</strong>, our mission is to create an open and transparent news environment where people can report, discuss, and shape the narrative of current events, both locally and globally. Chotokothai provides a stage where unheard voices can rise, stories can be told without distortion, and communities can stay informed without interference.</p>
+            
+            <h3>Why Choose Chotokothai?</h3>
+            <ul>
+                <li><strong>People First:</strong> News is reported directly by the public, ensuring real-time, unfiltered updates from those who experience events firsthand.</li>
+                <li><strong>Authenticity Over Bias:</strong> Our platform remains free from corporate or political influence, giving power back to the people to share genuine stories.</li>
+                <li><strong>A True News Hub:</strong> Unlike traditional media or social networks, Chotokothai is solely dedicated to sharing verified news, making it a trusted source of real-time information.</li>
+                <li><strong>Community-Driven:</strong> Engage in meaningful discussions, contribute to fact-checking efforts, and collaborate with like-minded individuals to ensure the truth reaches the masses.</li>
+                <li><strong>Global & Local Impact:</strong> Whether it’s a major international event or a local development in your community, Chotokothai allows everyone to be heard.</li>
+            </ul>
+            
+            <p>At Chotokothai, we believe journalism is not just a profession—it’s a responsibility. By allowing everyday people to report on news, we create a system that values accuracy, integrity, and speed. Traditional media often filters stories based on commercial interests, but here, the power is in your hands.</p>
+            
+            <p>📢 <strong>Your voice is powerful. Your story is important. Join Chotokothai and help shape the future of independent journalism.</strong></p>
+        </div>
     </div>
-</div>
+
+    <div class="footer">
+        <p><img src="mail.png" alt="Mail Icon"> chotokothai@gmail.com</p>
+    </div>
 
 </body>
 </html>
