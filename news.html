@@ -132,22 +132,44 @@
             font-size: 11px;
             color: #000;
             margin-top: 15px;
+            display: flex;
+            align-items: center;
         }
 
-        /* Like Button */
-        .like-button {
+        /* Like and Report Buttons */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .like-button, .report-button {
             font-family: 'Gotham', sans-serif;
-            margin-top: 5px;
             padding: 5px 10px;
-            background-color: #000000;
-            color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 10px; /* Smaller font size */
+        }
+
+        .like-button {
+            background-color: #000000;
+            color: white;
         }
 
         .like-button.liked {
             background-color: #ff0000;
+        }
+
+        .report-button {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        .report-button.reported {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
         .like-count {
@@ -155,22 +177,6 @@
             margin-top: 5px;
             font-size: 10px;
             color: #000;
-        }
-
-        .report-button {
-            font-family: 'Gotham', sans-serif;
-            margin-top: 5px;
-            padding: 5px 10px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .report-button.reported {
-            background-color: #ccc;
-            cursor: not-allowed;
         }
 
         .sponsor-box {
@@ -289,173 +295,175 @@
         </a>
     </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
-        authDomain: "thedailybd-acdaf.firebaseapp.com",
-        databaseURL: "https://thedailybd-acdaf-default-rtdb.firebaseio.com",
-        projectId: "thedailybd-acdaf",
-        storageBucket: "thedailybd-acdaf.appspot.com",
-        messagingSenderId: "582082023966",
-        appId: "1:582082023966:web:cdee6a8c28e4513761140f",
-        measurementId: "G-EML9VNGL8Z"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    let currentReportKey = null; // Track the post being reported
-
-    const loadNews = () => {
-        const newsRef = ref(db, 'news');
-        const newsFeed = document.getElementById('news-feed');
-        newsFeed.innerHTML = '';
-
-        const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
-        const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {}; // Track reported posts
-        const currentTime = Date.now();
-        const currentUser = localStorage.getItem('userName'); // Get the current user's name
-
-        onValue(newsRef, (snapshot) => {
-            newsFeed.innerHTML = '';
-            const news = snapshot.val();
-
-            // Convert news object to array and sort
-            const sortedNews = Object.keys(news).map(key => ({
-                ...news[key],
-                key
-            })).sort((a, b) => {
-                // Sort by current user's posts first, then by date
-                if (a.uploaderName === currentUser && b.uploaderName !== currentUser) return -1;
-                if (a.uploaderName !== currentUser && b.uploaderName === currentUser) return 1;
-                return new Date(b.date) - new Date(a.date);
-            });
-
-            for (const item of sortedNews) {
-                const newsDate = new Date(item.date).getTime();
-
-                if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
-                    const newsDiv = document.createElement('div');
-                    newsDiv.className = 'news-item';
-                    newsDiv.style.backgroundImage = "url('1.JPG')";
-                    newsDiv.style.backgroundSize = "cover";
-                    newsDiv.style.backgroundPosition = "center";
-                    newsDiv.style.backgroundRepeat = "no-repeat";
-
-                    const imageBox = item.imageUrl 
-                        ? `<div class="image-box" style="background-image: url('${item.imageUrl}');" onclick="openModal('${item.imageUrl}')"></div>` 
-                        : '';
-
-                    newsDiv.innerHTML = `
-                        ${imageBox}
-                        <div class="news-content">
-                            <span class="label">${new Date(item.date).toLocaleDateString()}</span>
-                            <div class="headline">${item.headline}</div>
-                            <div class="subtext">${item.subtext || ''}</div>
-                            <div class="uploader-name">
-                                <img src="${item.uploaderPhoto}" alt="User DP" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                Shared by: 
-                                <strong>${item.uploaderName || 'Anonymous'}</strong></a>
-                            </div>
-                            <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
-                            <button class="report-button ${reportedPosts[item.key] ? 'reported' : ''}" ${reportedPosts[item.key] ? 'disabled' : ''}>Report</button>
-                            <div class="like-count">Likes: ${item.likes || 0}</div>
-                        </div>
-                        <div class="sponsor-box">
-                            <picture>
-                                <source srcset="sponsermobil.jpg" media="(max-width: 600px)">
-                                <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
-                            </picture>
-                        </div>
-                    `;
-
-                    const likeButton = newsDiv.querySelector('.like-button');
-                    likeButton.addEventListener('click', () => {
-                        if (!likedPosts[item.key]) {
-                            likedPosts[item.key] = true;
-                            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
-                            const newLikes = (item.likes || 0) + 1;
-                            update(ref(db, `news/${item.key}`), { likes: newLikes });
-                            likeButton.classList.add('liked');
-                        }
-                    });
-
-                    const reportButton = newsDiv.querySelector('.report-button');
-                    reportButton.addEventListener('click', () => {
-                        if (!reportedPosts[item.key]) {
-                            currentReportKey = item.key; // Set the current post key
-                            openReportModal(); // Open the report modal
-                        } else {
-                            alert('You have already reported this post.');
-                        }
-                    });
-
-                    newsFeed.appendChild(newsDiv);
-                }
-            }
-        });
-    };
-
-    // Function to open report modal
-    function openReportModal() {
-        const modal = document.getElementById('report-modal');
-        modal.style.display = "flex";
-    }
-
-    // Function to close report modal
-    function closeReportModal() {
-        const modal = document.getElementById('report-modal');
-        modal.style.display = "none";
-    }
-
-    // Function to handle report submission
-    document.getElementById('submit-report').addEventListener('click', () => {
-        const reason = document.getElementById('report-reason').value;
-        if (reason.trim() === "") {
-            alert("Please enter a reason for reporting.");
-            return;
-        }
-
-        const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {};
-        reportedPosts[currentReportKey] = true;
-        localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
-
-        const reportData = {
-            reason: reason,
-            name: localStorage.getItem('userName'),
-            photo: localStorage.getItem('userPhoto'),
-            timestamp: Date.now()
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz1nwSYqWa4AiLXfM8VFGk2CzW2Dl6bag",
+            authDomain: "thedailybd-acdaf.firebaseapp.com",
+            databaseURL: "https://thedailybd-acdaf-default-rtdb.firebaseio.com",
+            projectId: "thedailybd-acdaf",
+            storageBucket: "thedailybd-acdaf.appspot.com",
+            messagingSenderId: "582082023966",
+            appId: "1:582082023966:web:cdee6a8c28e4513761140f",
+            measurementId: "G-EML9VNGL8Z"
         };
 
-        update(ref(db, `news/${currentReportKey}/reportedBy/${localStorage.getItem('userId')}`), reportData)
-            .then(() => {
-                alert('Post reported successfully!');
-                closeReportModal();
-                loadNews(); // Refresh the news feed to update the UI
-            })
-            .catch((error) => {
-                console.error("Error reporting post: ", error);
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let currentReportKey = null; // Track the post being reported
+
+        const loadNews = () => {
+            const newsRef = ref(db, 'news');
+            const newsFeed = document.getElementById('news-feed');
+            newsFeed.innerHTML = '';
+
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
+            const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {}; // Track reported posts
+            const currentTime = Date.now();
+            const currentUser = localStorage.getItem('userName'); // Get the current user's name
+
+            onValue(newsRef, (snapshot) => {
+                newsFeed.innerHTML = '';
+                const news = snapshot.val();
+
+                // Convert news object to array and sort
+                const sortedNews = Object.keys(news).map(key => ({
+                    ...news[key],
+                    key
+                })).sort((a, b) => {
+                    // Sort by current user's posts first, then by date
+                    if (a.uploaderName === currentUser && b.uploaderName !== currentUser) return -1;
+                    if (a.uploaderName !== currentUser && b.uploaderName === currentUser) return 1;
+                    return new Date(b.date) - new Date(a.date);
+                });
+
+                for (const item of sortedNews) {
+                    const newsDate = new Date(item.date).getTime();
+
+                    if (currentTime - newsDate <= 72 * 60 * 60 * 1000) {
+                        const newsDiv = document.createElement('div');
+                        newsDiv.className = 'news-item';
+                        newsDiv.style.backgroundImage = "url('1.JPG')";
+                        newsDiv.style.backgroundSize = "cover";
+                        newsDiv.style.backgroundPosition = "center";
+                        newsDiv.style.backgroundRepeat = "no-repeat";
+
+                        const imageBox = item.imageUrl 
+                            ? `<div class="image-box" style="background-image: url('${item.imageUrl}');" onclick="openModal('${item.imageUrl}')"></div>` 
+                            : '';
+
+                        newsDiv.innerHTML = `
+                            ${imageBox}
+                            <div class="news-content">
+                                <span class="label">${new Date(item.date).toLocaleDateString()}</span>
+                                <div class="headline">${item.headline}</div>
+                                <div class="subtext">${item.subtext || ''}</div>
+                                <div class="uploader-name">
+                                    <img src="${item.uploaderPhoto}" alt="User DP" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                    Shared by: 
+                                    <strong>${item.uploaderName || 'Anonymous'}</strong></a>
+                                </div>
+                                <div class="button-container">
+                                    <button class="like-button ${likedPosts[item.key] ? 'liked' : ''}">Like</button>
+                                    <button class="report-button ${reportedPosts[item.key] ? 'reported' : ''}" ${reportedPosts[item.key] ? 'disabled' : ''}>Report</button>
+                                </div>
+                                <div class="like-count">Likes: ${item.likes || 0}</div>
+                            </div>
+                            <div class="sponsor-box">
+                                <picture>
+                                    <source srcset="sponsermobil.jpg" media="(max-width: 600px)">
+                                    <img src="sponser.png" alt="Sponsor" style="height: 100%; width: auto;">
+                                </picture>
+                            </div>
+                        `;
+
+                        const likeButton = newsDiv.querySelector('.like-button');
+                        likeButton.addEventListener('click', () => {
+                            if (!likedPosts[item.key]) {
+                                likedPosts[item.key] = true;
+                                localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+                                const newLikes = (item.likes || 0) + 1;
+                                update(ref(db, `news/${item.key}`), { likes: newLikes });
+                                likeButton.classList.add('liked');
+                            }
+                        });
+
+                        const reportButton = newsDiv.querySelector('.report-button');
+                        reportButton.addEventListener('click', () => {
+                            if (!reportedPosts[item.key]) {
+                                currentReportKey = item.key; // Set the current post key
+                                openReportModal(); // Open the report modal
+                            } else {
+                                alert('You have already reported this post.');
+                            }
+                        });
+
+                        newsFeed.appendChild(newsDiv);
+                    }
+                }
             });
-    });
+        };
 
-    // Function to open modal and show image
-    function openModal(imageUrl) {
-        const modal = document.getElementById('image-modal');
-        const modalImage = document.getElementById('modal-image');
-        modalImage.src = imageUrl;
-        modal.style.display = "flex";
-    }
+        // Function to open report modal
+        function openReportModal() {
+            const modal = document.getElementById('report-modal');
+            modal.style.display = "flex";
+        }
 
-    // Function to close modal
-    function closeModal() {
-        document.getElementById('image-modal').style.display = "none";
-    }
+        // Function to close report modal
+        function closeReportModal() {
+            const modal = document.getElementById('report-modal');
+            modal.style.display = "none";
+        }
 
-    // Load news when the page loads
-    window.onload = loadNews;
-</script>
+        // Function to handle report submission
+        document.getElementById('submit-report').addEventListener('click', () => {
+            const reason = document.getElementById('report-reason').value;
+            if (reason.trim() === "") {
+                alert("Please enter a reason for reporting.");
+                return;
+            }
+
+            const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {};
+            reportedPosts[currentReportKey] = true;
+            localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
+
+            const reportData = {
+                reason: reason,
+                name: localStorage.getItem('userName'),
+                photo: localStorage.getItem('userPhoto'),
+                timestamp: Date.now()
+            };
+
+            update(ref(db, `news/${currentReportKey}/reportedBy/${localStorage.getItem('userId')}`), reportData)
+                .then(() => {
+                    alert('Post reported successfully!');
+                    closeReportModal();
+                    loadNews(); // Refresh the news feed to update the UI
+                })
+                .catch((error) => {
+                    console.error("Error reporting post: ", error);
+                });
+        });
+
+        // Function to open modal and show image
+        function openModal(imageUrl) {
+            const modal = document.getElementById('image-modal');
+            const modalImage = document.getElementById('modal-image');
+            modalImage.src = imageUrl;
+            modal.style.display = "flex";
+        }
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById('image-modal').style.display = "none";
+        }
+
+        // Load news when the page loads
+        window.onload = loadNews;
+    </script>
 </body>
 </html>
