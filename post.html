@@ -185,27 +185,12 @@
             z-index: 1000;
             display: none;
         }
-        #points-section {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-family: 'Times New Roman', serif;
-            font-size: 18px;
-            color: #f10000;
-            font-weight: bold;
-        }
-        #points-section img {
-            width: 20px;
-            height: 20px;
-            vertical-align: middle;
-            margin-right: 5px;
-        }
         #paste-notification {
             position: fixed;
-            top: 50%; /* Center vertically */
-            left: 50%; /* Center horizontally */
-            transform: translate(-50%, -50%); /* Ensure exact centering */
-            background-color: rgba(255, 0, 0, 0.8); /* Semi-transparent red background */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.8);
             color: white;
             padding: 15px 30px;
             border-radius: 10px;
@@ -216,10 +201,10 @@
         }
         #weekly-limit-notification {
             position: fixed;
-            top: 50%; /* Center vertically */
-            left: 50%; /* Center horizontally */
-            transform: translate(-50%, -50%); /* Ensure exact centering */
-            background-color: rgba(255, 0, 0, 0.8); /* Semi-transparent red background */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.8);
             color: white;
             padding: 15px 30px;
             border-radius: 10px;
@@ -255,11 +240,6 @@
 
     <!-- Main Content -->
     <div class="container" id="main-content" style="display: none;">
-        <!-- Points Section -->
-        <div id="points-section">
-            <img src="points.png" alt="Points"> <span id="user-points">0</span>
-        </div>
-
         <!-- User Info -->
         <div id="user-info">
             <img id="user-photo" src="" alt="User Photo">
@@ -294,7 +274,12 @@
     <div id="paste-notification">Only "Copy Image Address" links ending with .png are allowed.</div>
 
     <!-- Centered Notification for Weekly Post Limit -->
-    <div id="weekly-limit-notification">You have reached the maximum limit of 5 posts per week.</div>
+    <div id="weekly-limit-notification">You have reached the maximum limit of 3 posts per week.</div>
+
+    <!-- Centered Notification for Disabled User -->
+    <div id="disabled-user-notification" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 0, 0, 0.8); color: white; padding: 15px 30px; border-radius: 10px; font-size: 16px; z-index: 1000; display: none; text-align: center;">
+        You are disabled from posting.
+    </div>
 
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
@@ -321,31 +306,20 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Function to calculate and display user points
-        const calculateUserPoints = (userId) => {
-            const newsRef = ref(db, 'news');
-            onValue(newsRef, (snapshot) => {
-                const news = snapshot.val();
-                let totalPoints = 0;
+        // Function to check if the user is disabled
+        const checkIfUserIsDisabled = async (userId) => {
+            const userRef = ref(db, `users/${userId}`);
+            let isDisabled = false;
 
-                for (const key in news) {
-                    if (news[key].uploaderName === userId) {
-                        totalPoints += news[key].likes || 0;
-                    }
+            await onValue(userRef, (snapshot) => {
+                const userData = snapshot.val();
+                if (userData && userData.disabled) {
+                    isDisabled = true;
                 }
-
-                // Update the points display
-                document.getElementById('user-points').textContent = totalPoints;
             });
-        };
 
-        // Load user points when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            const userName = localStorage.getItem('userName');
-            if (userName) {
-                calculateUserPoints(userName);
-            }
-        });
+            return isDisabled;
+        };
 
         const newsRef = ref(db, 'news');
         const fileUpload = document.getElementById('file-upload');
@@ -496,6 +470,15 @@
         document.getElementById('news-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const userName = localStorage.getItem('userName');
+            const isDisabled = await checkIfUserIsDisabled(userName);
+
+            if (isDisabled) {
+                // Show the disabled user notification
+                document.getElementById('disabled-user-notification').style.display = 'block';
+                return;
+            }
+
             const headline = document.getElementById('headline').value;
             const subtext = document.getElementById('subtext').value;
             const file = fileUpload.files[0];
@@ -522,19 +505,19 @@
             const name = localStorage.getItem('userName') || 'Anonymous';
             const photo = localStorage.getItem('userPhoto') || '';
 
-            // Get the current week number
+            // Get the current week number (based on ISO week)
             const now = new Date();
-            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+            const startOfWeek = new Date(now);
+            startOfWeek.setHours(0, 0, 0, 0 - (now.getDay() || 7)); // Start of the week (Monday)
             const weekNumber = Math.floor(startOfWeek.getTime() / (7 * 24 * 60 * 60 * 1000));
 
             // Get the user's post count for the current week
             const userPostCountKey = `postCount_${weekNumber}`;
             let postCount = parseInt(localStorage.getItem(userPostCountKey)) || 0;
 
-            // Check if the user has already posted 5 times this week
-            if (postCount >= 5) {
+            // Check if the user has already posted 3 times this week
+            if (postCount >= 3) {
                 // Show the centered weekly post limit notification
-                const weeklyLimitNotification = document.getElementById('weekly-limit-notification');
                 weeklyLimitNotification.style.display = 'block';
                 setTimeout(() => {
                     weeklyLimitNotification.style.display = 'none';
