@@ -150,7 +150,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 10px; /* Smaller font size */
+            font-size: 10px;
         }
 
         .like-button {
@@ -228,7 +228,7 @@
 
         /* Report Modal Styles */
         #report-modal {
-            display: none;
+            display: none; /* Hidden by default */
             position: fixed;
             top: 50%;
             left: 50%;
@@ -238,6 +238,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 2000;
+            width: 300px;
         }
 
         #report-modal textarea {
@@ -246,6 +247,12 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+
+        #report-modal .modal-actions {
+            display: flex;
+            justify-content: flex-start; /* Align buttons to the left */
+            gap: 10px; /* Space between buttons */
         }
 
         #report-modal button {
@@ -258,7 +265,25 @@
         }
 
         #report-modal button:hover {
-            background-color: #333;
+            opacity: 0.9;
+        }
+
+        /* Notification Styles */
+        .notification {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9); /* White transparent background */
+            color: black; /* Black text color */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            text-align: center;
+            font-size: 16px;
+            font-family: Arial, sans-serif; /* Arial font */
         }
     </style>
 </head>
@@ -266,12 +291,17 @@
     <!-- Report Reason Modal -->
     <div id="report-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button" onclick="closeReportModal()">&times;</span>
             <h3>Why are you reporting this post?</h3>
             <textarea id="report-reason" placeholder="Enter your reason..." rows="4"></textarea>
-            <button id="submit-report">Submit</button>
+            <div class="modal-actions">
+                <button id="submit-report">Submit</button>
+                <button id="cancel-report">Cancel</button>
+            </div>
         </div>
     </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
 
     <!-- Image Modal for Fullscreen View -->
     <div id="image-modal" class="modal">
@@ -321,20 +351,18 @@
             newsFeed.innerHTML = '';
 
             const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
-            const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {}; // Track reported posts
+            const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts')) || {};
             const currentTime = Date.now();
-            const currentUser = localStorage.getItem('userName'); // Get the current user's name
+            const currentUser = localStorage.getItem('userName');
 
             onValue(newsRef, (snapshot) => {
                 newsFeed.innerHTML = '';
                 const news = snapshot.val();
 
-                // Convert news object to array and sort
                 const sortedNews = Object.keys(news).map(key => ({
                     ...news[key],
                     key
                 })).sort((a, b) => {
-                    // Sort by current user's posts first, then by date
                     if (a.uploaderName === currentUser && b.uploaderName !== currentUser) return -1;
                     if (a.uploaderName !== currentUser && b.uploaderName === currentUser) return 1;
                     return new Date(b.date) - new Date(a.date);
@@ -394,10 +422,10 @@
                         const reportButton = newsDiv.querySelector('.report-button');
                         reportButton.addEventListener('click', () => {
                             if (!reportedPosts[item.key]) {
-                                currentReportKey = item.key; // Set the current post key
-                                openReportModal(); // Open the report modal
+                                currentReportKey = item.key;
+                                openReportModal();
                             } else {
-                                alert('You have already reported this post.');
+                                showNotification('You have already reported this post.');
                             }
                         });
 
@@ -406,6 +434,18 @@
                 }
             });
         };
+
+        // Function to show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+
+            // Hide the notification after 3 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
 
         // Function to open report modal
         function openReportModal() {
@@ -417,13 +457,14 @@
         function closeReportModal() {
             const modal = document.getElementById('report-modal');
             modal.style.display = "none";
+            document.getElementById('report-reason').value = ""; // Clear the textarea
         }
 
         // Function to handle report submission
         document.getElementById('submit-report').addEventListener('click', () => {
             const reason = document.getElementById('report-reason').value;
             if (reason.trim() === "") {
-                alert("Please enter a reason for reporting.");
+                showNotification("Please enter a reason for reporting.");
                 return;
             }
 
@@ -440,13 +481,19 @@
 
             update(ref(db, `news/${currentReportKey}/reportedBy/${localStorage.getItem('userId')}`), reportData)
                 .then(() => {
-                    alert('Post reported successfully!');
+                    showNotification('Post reported successfully!');
                     closeReportModal();
-                    loadNews(); // Refresh the news feed to update the UI
+                    loadNews();
                 })
                 .catch((error) => {
                     console.error("Error reporting post: ", error);
+                    showNotification('Error reporting post. Please try again.');
                 });
+        });
+
+        // Function to handle cancel button
+        document.getElementById('cancel-report').addEventListener('click', () => {
+            closeReportModal();
         });
 
         // Function to open modal and show image
