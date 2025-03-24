@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <style>
-        /* Your existing CSS styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -213,28 +212,88 @@
             display: none;
             text-align: center;
         }
+        .welcome-box-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .welcome-box-buttons button {
+            flex: 1;
+        }
+        #cancel-edit {
+            background: #ff0000;
+        }
+        #cancel-edit:hover {
+            background: #cc0000;
+        }
+        #remove-photo {
+            background: #000000;
+            margin-top: 10px;
+        }
+        #remove-photo:hover {
+            background: #000010;
+        }
+        #disabled-user-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
+        .photo-upload-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .current-photo-container {
+            margin: 10px 0;
+        }
+        .current-photo {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
     </style>
 </head>
 <body>
     <!-- Welcome Overlay for Profile Setup -->
     <div class="welcome-overlay" id="welcome-overlay">
         <div class="welcome-box">
-            <h2>Welcome! Set Up Your Profile</h2>
+            <h2>Edit Your Profile</h2>
             <input type="text" id="welcome-name" placeholder="Enter your name (Max 15 characters)" maxlength="15" required>
             <select id="welcome-gender" required>
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
             </select>
-            <label for="welcome-photo">Upload Photo (optional):</label>
+            
+            <div class="current-photo-container" id="current-photo-container" style="display: none;">
+                <span class="photo-upload-label">Current Photo:</span>
+                <img id="current-photo" class="current-photo" src="" alt="Current Photo">
+            </div>
+            
+            <label for="welcome-photo" class="photo-upload-label" id="photo-upload-label">Choose Photo</label>
             <input type="file" id="welcome-photo" accept="image/*">
+            
             <div id="image-preview-container" style="display: none; margin: 10px 0;">
                 <img id="image-preview" style="max-width: 100%; max-height: 300px; border: 1px solid #ccc;">
             </div>
             <div id="crop-controls" style="display: none; margin-top: 10px;">
                 <button id="crop-image">Crop Image</button>
             </div>
-            <button id="save-profile">Save Profile</button>
+            <button id="remove-photo" style="display: none;">Remove Photo</button>
+            <div class="welcome-box-buttons">
+                <button id="cancel-edit">Cancel</button>
+                <button id="save-profile">Save Changes</button>
+            </div>
         </div>
     </div>
 
@@ -277,9 +336,7 @@
     <div id="weekly-limit-notification">You have reached the maximum limit of 3 posts per week.</div>
 
     <!-- Centered Notification for Disabled User -->
-    <div id="disabled-user-notification" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 0, 0, 0.8); color: white; padding: 15px 30px; border-radius: 10px; font-size: 16px; z-index: 1000; display: none; text-align: center;">
-        You are disabled from posting.
-    </div>
+    <div id="disabled-user-notification">You are disabled from posting.</div>
 
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
@@ -338,12 +395,18 @@
         const cropImageButton = document.getElementById('crop-image');
         const pasteNotification = document.getElementById('paste-notification');
         const weeklyLimitNotification = document.getElementById('weekly-limit-notification');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const removePhotoBtn = document.getElementById('remove-photo');
+        const currentPhotoContainer = document.getElementById('current-photo-container');
+        const currentPhoto = document.getElementById('current-photo');
+        const photoUploadLabel = document.getElementById('photo-upload-label');
         let cropper;
 
         const defaultPhotos = {
             male: 'male.jpg',
             female: 'female.jpg'
         };
+        let currentGender = localStorage.getItem('userGender') || '';
 
         // Handle profile photo upload and cropping
         photoInput.addEventListener('change', (e) => {
@@ -354,6 +417,10 @@
                     imagePreview.src = reader.result;
                     imagePreviewContainer.style.display = 'block';
                     cropControls.style.display = 'block';
+                    removePhotoBtn.style.display = 'block';
+
+                    // Hide current photo when uploading new one
+                    currentPhotoContainer.style.display = 'none';
 
                     // Destroy existing cropper instance if it exists
                     if (cropper) {
@@ -394,6 +461,83 @@
             }
         });
 
+        // Cancel editing
+        cancelEditBtn.addEventListener('click', () => {
+            welcomeOverlay.style.display = 'none';
+            
+            // Clear any temporary changes
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            imagePreviewContainer.style.display = 'none';
+            cropControls.style.display = 'none';
+            photoInput.value = '';
+        });
+
+        // Remove photo and use default based on gender
+        removePhotoBtn.addEventListener('click', () => {
+            // Clear the photo input and preview
+            photoInput.value = '';
+            imagePreviewContainer.style.display = 'none';
+            cropControls.style.display = 'none';
+            
+            // If there's a cropper instance, destroy it
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            
+            // Set the photo to the default based on gender
+            const gender = document.getElementById('welcome-gender').value || currentGender;
+            if (gender) {
+                localStorage.setItem('userPhoto', defaultPhotos[gender]);
+                userPhotoDisplay.src = defaultPhotos[gender];
+                currentPhoto.src = defaultPhotos[gender];
+            }
+            
+            // Hide the remove photo button since we're using default now
+            removePhotoBtn.style.display = 'none';
+            
+            // Show the current photo container with default image
+            currentPhotoContainer.style.display = 'block';
+        });
+
+        // Edit profile functionality
+        editProfileBtn.addEventListener('click', () => {
+            welcomeOverlay.style.display = 'flex';
+            document.getElementById('welcome-name').value = localStorage.getItem('userName');
+            
+            // Set the previously selected gender
+            if (currentGender) {
+                document.getElementById('welcome-gender').value = currentGender;
+            }
+            
+            // Show current photo if exists
+            const currentPhotoUrl = localStorage.getItem('userPhoto');
+            if (currentPhotoUrl) {
+                currentPhoto.src = currentPhotoUrl;
+                currentPhotoContainer.style.display = 'block';
+                photoUploadLabel.textContent = "Change Photo";
+            } else {
+                currentPhotoContainer.style.display = 'none';
+                photoUploadLabel.textContent = "Choose Photo";
+            }
+            
+            imagePreviewContainer.style.display = 'none';
+            cropControls.style.display = 'none';
+            photoInput.value = '';
+            
+            // Show/hide remove photo button based on whether using default photo
+            const isDefaultPhoto = currentPhotoUrl === defaultPhotos.male || currentPhotoUrl === defaultPhotos.female;
+            removePhotoBtn.style.display = isDefaultPhoto ? 'none' : 'block';
+            
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        });
+
         // Save profile and show main content
         saveProfileBtn.addEventListener('click', () => {
             const name = document.getElementById('welcome-name').value;
@@ -404,30 +548,20 @@
                 return;
             }
 
-            // Save the photo URL from cropping or default photo
-            const photoUrl = localStorage.getItem('userPhoto') || defaultPhotos[gender];
+            // Save the gender
+            currentGender = gender;
+            localStorage.setItem('userGender', gender);
+
+            // If no new photo was uploaded, keep the existing one or use default
+            let photoUrl = localStorage.getItem('userPhoto');
+            if (!photoUrl || photoInput.files.length === 0) {
+                photoUrl = photoUrl || defaultPhotos[gender];
+            }
+
             localStorage.setItem('userName', name);
             localStorage.setItem('userPhoto', photoUrl);
 
             showMainContent(name, photoUrl);
-        });
-
-        // Edit profile functionality
-        editProfileBtn.addEventListener('click', () => {
-            welcomeOverlay.style.display = 'flex';
-            document.getElementById('welcome-name').value = localStorage.getItem('userName');
-            document.getElementById('welcome-gender').value = '';
-            imagePreviewContainer.style.display = 'none';
-            cropControls.style.display = 'none';
-
-            // Clear the file input to allow re-uploading the same image
-            photoInput.value = '';
-
-            // Destroy existing cropper instance if it exists
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-            }
         });
 
         // Show main content with user details
@@ -435,18 +569,32 @@
             welcomeOverlay.style.display = 'none';
             mainContent.style.display = 'block';
             userNameDisplay.textContent = name;
-            userPhotoDisplay.src = photoUrl;
+            
+            // If photoUrl is empty, use default based on saved gender
+            const gender = localStorage.getItem('userGender');
+            const finalPhotoUrl = photoUrl || (gender ? defaultPhotos[gender] : '');
+            userPhotoDisplay.src = finalPhotoUrl;
+            
+            // Update localStorage with the final photo URL
+            if (finalPhotoUrl) {
+                localStorage.setItem('userPhoto', finalPhotoUrl);
+            }
         }
 
         // Load saved profile on page load
         document.addEventListener('DOMContentLoaded', () => {
             const userName = localStorage.getItem('userName');
             const userPhoto = localStorage.getItem('userPhoto');
+            const userGender = localStorage.getItem('userGender');
 
-            if (userName && userPhoto) {
+            if (userName && (userPhoto || userGender)) {
                 showMainContent(userName, userPhoto);
             } else {
                 welcomeOverlay.style.display = 'flex';
+                document.getElementById('welcome-name').value = '';
+                document.getElementById('welcome-gender').value = '';
+                currentPhotoContainer.style.display = 'none';
+                photoUploadLabel.textContent = "Choose Photo";
             }
         });
 
@@ -476,6 +624,9 @@
             if (isDisabled) {
                 // Show the disabled user notification
                 document.getElementById('disabled-user-notification').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('disabled-user-notification').style.display = 'none';
+                }, 3000);
                 return;
             }
 
@@ -559,6 +710,7 @@
 
                 // Clear the form
                 document.getElementById('news-form').reset();
+                fileNameDisplay.textContent = "No file selected";
             } catch (error) {
                 console.error("Error submitting news:", error);
                 const notification = document.getElementById('custom-notification');
